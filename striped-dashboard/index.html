@@ -137,12 +137,12 @@
   .es-title{font-size:18px;line-height:22px;font-weight:600;margin-top:18px}
   .es-sub{font-size:16px;line-height:20px;color:var(--muted);margin-top:8px}
 
-  .backdrop{position:absolute;inset:0;background:rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .2s;z-index:10}
+  .backdrop{position:absolute;inset:0;background:rgba(0,0,0,.4);-webkit-backdrop-filter:blur(18px) saturate(140%);backdrop-filter:blur(18px) saturate(140%);opacity:0;pointer-events:none;transition:opacity .25s;z-index:10}
   .backdrop.open{opacity:1;pointer-events:auto}
   .sheet{position:absolute;left:0;right:0;bottom:0;max-height:92%;background:var(--bg);border-radius:12px 12px 0 0;transform:translateY(102%);transition:transform .28s cubic-bezier(.2,.8,.2,1);z-index:11;display:flex;flex-direction:column;box-shadow:0 -8px 30px rgba(0,0,0,.4)}
   .sheet.open{transform:none}
   .sheet.full{top:calc(env(safe-area-inset-top) + 10px);max-height:none}
-  .sheet-head{position:relative;flex:0 0 auto;height:56px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--line)}
+  .sheet-head{position:relative;flex:0 0 auto;height:56px;touch-action:none;cursor:grab;display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--line)}
   .sheet-head h3{margin:0;font-size:17px;font-weight:600;max-width:70%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .head-btn{position:absolute;top:6px;width:44px;height:44px;border:0;background:none;color:var(--text);display:grid;place-items:center;padding:0}
   .head-btn[hidden]{display:none}
@@ -1277,6 +1277,32 @@ function scheduleMidnight(){
   setTimeout(()=>{renderAll();scheduleMidnight();},next-now+1000);
 }
 setInterval(()=>{ if(UI.day!==dayKey(new Date())) renderAll(); },60000);
+
+/* ---------- pull a sheet down by its header to close it ---------- */
+let sheetDrag=null;
+$('#sheet .sheet-head').addEventListener('pointerdown',e=>{
+  if(e.target.closest('button')) return;
+  sheetDrag={y:e.clientY,dy:0};
+  $('#sheet').style.transition='none';
+  try{e.currentTarget.setPointerCapture(e.pointerId);}catch(err){}
+});
+$('#sheet .sheet-head').addEventListener('pointermove',e=>{
+  if(!sheetDrag) return;
+  sheetDrag.dy=Math.max(0,e.clientY-sheetDrag.y);
+  $('#sheet').style.transform=`translateY(${sheetDrag.dy}px)`;
+  $('#backdrop').style.opacity=String(Math.max(0,1-sheetDrag.dy/400));
+});
+const endSheetDrag=()=>{
+  if(!sheetDrag) return;
+  const close=sheetDrag.dy>90;
+  sheetDrag=null;
+  $('#sheet').style.transition='';
+  $('#sheet').style.transform='';
+  $('#backdrop').style.opacity='';
+  if(close) closeSheet();
+};
+$('#sheet .sheet-head').addEventListener('pointerup',endSheetDrag);
+$('#sheet .sheet-head').addEventListener('pointercancel',endSheetDrag);
 
 /* ---------- start ---------- */
 S=load();
