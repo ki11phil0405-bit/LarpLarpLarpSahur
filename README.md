@@ -1,6 +1,6 @@
 # LarpLarpLarpSahur
 
-A YouTube Studio–style analytics simulator (mobile first). Open `studio/index.html` on your phone.
+A YouTube Studio–style analytics simulator (mobile first). It is kept as a backup in `backup/youtube-studio/index.html` and is no longer linked from the main page.
 
 - **Tap any number** (views, watch time, subscribers, realtime, total subs, status-bar time) to edit it and its % change. The chart is regenerated to match.
 - **Triple-tap the "Studio" logo** for every setting: chart shape, end date, number format, avatar, top-content videos, status bar.
@@ -11,7 +11,7 @@ For a clean full-screen view on iPhone: Safari → Share → **Add to Home Scree
 
 ## Margin Drive dashboard (`dashboard/`)
 
-The main page (`index.html`) opens this Stripe-style dashboard, which lives in `dashboard/`. The original Studio simulator moved to `studio/index.html`.
+The main page (`index.html`) opens this Stripe-style dashboard, which lives in `dashboard/`. The original Studio simulator is kept as a backup in `backup/youtube-studio/`.
 
 - **Tiers**: Low, Medium, High, Income. Account settings → **Randomize** rebuilds 400 days of payments for that tier.
 - **Reports**: 1W / 4W / 1Y / MTD / QTD / YTD / ALL ranges with % change. **Drag your finger** on any chart to read the value and date (hover with a mouse).

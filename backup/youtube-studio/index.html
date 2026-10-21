@@ -251,7 +251,7 @@
   const DEFAULTS = {
     name: "Philip Werner",
     totalSubs: 558,
-    avatar: "../assets/avatar.jpg",
+    avatar: "assets/avatar.jpg",
     endDate: "",           // blank = yesterday
     format: "auto",        // auto | full
     seed: 7,
@@ -541,7 +541,7 @@
   let currentDot = 0;
   function renderAll() {
     renderStatus();
-    ["hdrAv", "dashAv"].forEach(id => $(id).src = S.avatar || "../assets/avatar.jpg");
+    ["hdrAv", "dashAv"].forEach(id => $(id).src = S.avatar || "assets/avatar.jpg");
     $("dashName").textContent = S.name;
     $("dashTotal").textContent = fmtSubs(Number(S.totalSubs) || 0);
     $("tileViews").textContent = fmt(S.metrics.views.value);
