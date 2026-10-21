@@ -62,6 +62,9 @@
   .editbar button,.mini{border:1px solid var(--line);background:var(--card2);border-radius:8px;padding:5px 10px;font-size:13px}
   .mini{width:30px;height:30px;padding:0;display:grid;place-items:center}
   .mini:disabled{opacity:.3}
+  .wrow{display:flex;align-items:center;gap:10px}
+  .wrow .bignum{flex:1;min-width:0}
+  .mini.wide{width:auto;height:34px;padding:0 12px;font-size:14px;font-weight:600;color:var(--accent)}
 
   .chart{position:relative;height:150px;margin-top:16px;touch-action:pan-y;user-select:none;-webkit-user-select:none;cursor:crosshair}
   .chart svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
@@ -397,7 +400,7 @@ function windowFor(key,a){
     default: start=a.history.length?parseDay(a.history[0].d):today;
   }
   const len=Math.round((today-start)/DAY)+1;
-  return {start,end:today,len,pStart:addDays(start,-len),pEnd:addDays(start,-1)};
+  return {key,start,end:today,len,pStart:addDays(start,-len),pEnd:addDays(start,-1)};
 }
 function bucketsFor(win){
   const size=win.len<=62?1:win.len<=200?7:30,out=[];
@@ -481,7 +484,7 @@ function editBar(i,on){
 function renderHome(a){
   CHARTS.length=0;
   const today=startOfDay(new Date()),t=dayTotals(a,today);
-  $('#today').innerHTML=a.home.today.map(id=>`<div><div class="tl">${METRICS[id].short}</div><div class="tv">${fmtVal(id,METRICS[id].f([t]),a)}</div></div>`).join('');
+  $('#today').innerHTML=a.home.today.map(id=>`<div><div class="tl">${METRICS[id].short}</div><div class="tv" data-edit="metric|${id}|today">${fmtVal(id,METRICS[id].f([t]),a)}</div></div>`).join('');
   $('#ranges').innerHTML=RANGES.map(r=>`<button class="${r===a.home.range?'on':''}" data-act="range" data-v="${r}">${r}</button>`).join('');
   const win=windowFor(a.home.range,a);
   $('#reports').innerHTML=a.home.layout.map((it,i)=>{
@@ -501,7 +504,7 @@ function metricCard(a,id,win,i,on){
     <div class="mhead"><div class="mtitle">${m.label}</div><span class="badge">${Math.round(pct)}%</span></div>
     <div class="cmp">
       <div><div class="cv">${fmtVal(id,prev,a)}</div><div class="cd">${fmtSpan(win.pStart,win.pEnd)}</div></div>
-      <div class="right"><div class="cv cur">${fmtVal(id,cur,a)}</div><div class="cd">${fmtSpan(win.start,null)}</div></div>
+      <div class="right"><div class="cv cur" data-edit="metric|${id}|${win.key}">${fmtVal(id,cur,a)}</div><div class="cd">${fmtSpan(win.start,null)}</div></div>
     </div>
     ${chartHTML(vals,bs.map(spanLabel),a,v=>fmtVal(id,v,a))}
   </section>`;
@@ -509,10 +512,10 @@ function metricCard(a,id,win,i,on){
 function widgetCard(a,wid,i,on){
   const w=a.widgets.find(x=>x.id===wid);if(!w) return '';
   const chart=w.type==='chart'&&w.log.length>1?chartHTML(w.log.map(x=>x.v),w.log.map(x=>fmtTime(x.t)),a,v=>fmtMoney(v,a)):'';
-  const hint=w.type==='chart'&&!chart?'<div class="cd">Tap the number to start the chart</div>':'';
+  const hint=w.type==='chart'&&!chart?'<div class="cd">Tap + to add a sale, triple-tap the number to edit it</div>':'';
   return `<section class="metric${on?'':' off'}">${editBar(i,on)}
     <div class="mhead"><div class="mtitle">${esc(w.name)}</div><span class="badge">+${fmtMoney(w.step,a)} a tap</span></div>
-    <button class="bignum" data-act="tap" data-id="${w.id}">${fmtMoney(w.value,a)}</button>
+    <div class="wrow"><button class="bignum" data-edit="widget|${w.id}">${fmtMoney(w.value,a)}</button><button class="mini wide" data-act="tap" data-id="${w.id}">+${fmtMoney(w.step,a)}</button></div>
     ${chart||hint}
   </section>`;
 }
@@ -892,8 +895,77 @@ function exportData(){
   setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 
+/* ---------- triple-tap editing (synced through the daily data) ---------- */
+let tapKey=null,tapN=0,tapT=0;
+function tripleTap(el){
+  const key=el.dataset.edit,now=Date.now();
+  if(key===tapKey&&now-tapT<700) tapN++; else {tapKey=key;tapN=1;}
+  tapT=now;
+  if(tapN===3){tapN=0;tapKey=null;openEdit(key);}
+}
+function openEdit(key){
+  const a=A(),[kind,id,range]=key.split('|');
+  let current,label;
+  if(kind==='widget'){
+    const w=a.widgets.find(x=>x.id===id);if(!w) return;
+    current=w.value;label=w.name;
+  }else{
+    const win=range==='today'?{start:startOfDay(new Date()),end:startOfDay(new Date())}:windowFor(range,a);
+    current=METRICS[id].f(rowsBetween(a,win.start,win.end));
+    label=METRICS[id].label;
+  }
+  const digits=METRICS[id]&&METRICS[id].fmt==='count'?0:2;
+  openSheet(`Edit ${label}`,`<form class="sform" data-form="edit" data-kind="${kind}" data-id="${id}" data-range="${range||''}">
+    <input name="newValue" type="number" inputmode="decimal" step="${digits?'0.01':'1'}" min="0" value="${Number(current).toFixed(digits)}" required>
+    <div class="hint">Changes spread across the days in this range, so every screen that shows this number updates too.</div>
+    <button class="btn" type="submit">Save</button>
+  </form>`);
+}
+function applyEdit(a,ds,v){
+  if(ds.kind==='widget'){
+    const w=a.widgets.find(x=>x.id===ds.id);if(!w) return;
+    w.value=round2(v);
+    w.log.push({t:Date.now(),v:w.value});
+    if(w.log.length>200) w.log.shift();
+  }else{
+    const win=ds.range==='today'?{start:startOfDay(new Date()),end:startOfDay(new Date())}:windowFor(ds.range,a);
+    setWindowTotal(a,ds.id,win.start,win.end,v);
+  }
+  save();
+}
+function setWindowTotal(a,id,s,e,target){
+  const rows=[];
+  for(let d=startOfDay(s);d<=e;d=addDays(d,1)){
+    const k=dayKey(d);
+    let r=dayMap(a)[k];
+    if(!r){r={d:k,gross:0,count:0,customers:0,refunds:0};a.history.push(r);MAPS.delete(a);}
+    rows.push(r);
+  }
+  const cur=rows.map(r=>derive(r,a));
+  const G=sum(cur,'gross'),C=sum(cur,'count'),R=sum(cur,'refunds');
+  const p=a.fee.pct/100,fx=a.fee.fixed,last=rows[rows.length-1];
+  const scaleField=(field,goal,total,int)=>{
+    if(total>0){
+      const f=goal/total;
+      rows.forEach(r=>{const v=r[field]*f;r[field]=int?Math.round(v):round2(v);});
+    }else{
+      last[field]=int?Math.round(goal):round2(goal);
+    }
+  };
+  if(id==='gross') scaleField('gross',target,G,false);
+  else if(id==='net'&&p<1) scaleField('gross',Math.max(0,(target+C*fx+R)/(1-p)),G,false);
+  else if(id==='fees'&&p>0) scaleField('gross',Math.max(0,(target-C*fx)/p),G,false);
+  else if(id==='payments') scaleField('count',target,C,true);
+  else if(id==='customers') scaleField('customers',target,sum(cur,'customers'),true);
+  else if(id==='refunds') scaleField('refunds',target,R,false);
+  else if(id==='aov'&&target>0) scaleField('count',G/target,C,true);
+  MAPS.delete(a);
+}
+
 /* ---------- events ---------- */
 document.addEventListener('click',e=>{
+  const ed=e.target.closest('[data-edit]');
+  if(ed){ tripleTap(ed); return; }
   const el=e.target.closest('[data-act]');
   if(!el||el.disabled) return;
   act(el.dataset.act,el);
@@ -922,6 +994,13 @@ document.addEventListener('change',async e=>{
 document.addEventListener('submit',e=>{
   e.preventDefault();
   const f=e.target;if(!f.dataset.form) return;
+  if(f.dataset.form==='edit'){
+    const v=parseFloat(f.newValue.value);
+    if(!Number.isFinite(v)||v<0) return;
+    applyEdit(A(),{...f.dataset},v);
+    closeSheet();renderAll();
+    return;
+  }
   const amount=round2(parseFloat(f.amount.value));
   if(!(amount>0)) return;
   const customer=f.customer.value.trim()||'Walk-in',a=A();
