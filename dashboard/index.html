@@ -20,9 +20,6 @@
   button{cursor:pointer}
   #app{position:relative;max-width:440px;height:100vh;height:100dvh;margin:0 auto;background:var(--bg);display:flex;flex-direction:column;overflow:hidden}
   @media(min-width:520px){body{background:#000;padding:24px 0;height:auto}#app{height:956px;border-radius:44px;box-shadow:0 0 0 10px #1c1c1c}}
-  .status{height:50px;display:flex;align-items:center;justify-content:space-between;padding:0 30px 0 34px;font-weight:600;font-size:16px;flex:0 0 auto}
-  body.standalone .status{display:none}
-  body.standalone #app{padding-top:env(safe-area-inset-top)}
 
   .topbar{height:56px;display:flex;align-items:center;gap:12px;padding:0 16px;flex:0 0 auto}
   .topbar .title{flex:1;text-align:center;font-weight:600;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -138,7 +135,6 @@
 </head>
 <body>
 <div id="app">
-  <div class="status"><span id="clock"></span><span>5G</span></div>
   <header class="topbar">
     <button class="icon-btn" data-act="openSettings" aria-label="Account and settings">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 9h16v11H4z"/><path d="M3 9l1.5-5h15L21 9"/><path d="M9 20v-6h6v6"/></svg>
@@ -260,7 +256,7 @@ function DEFAULT_RULES(tier){
 function newAccount(name,tier){
   const a={
     id:uid(),
-    business:{name,tier,currency:'USD',avatar:(name.trim()[0]||'M').toUpperCase(),accent:'#6c5cff',theme:'dark',statusBar:true},
+    business:{name,tier,currency:'USD',avatar:(name.trim()[0]||'M').toUpperCase(),accent:'#6c5cff',theme:'dark'},
     fee:{pct:2.9,fixed:0.3},
     format:{decimals:2,compact:false},
     home:{range:'1W',today:['gross','payments','customers'],layout:[
@@ -416,7 +412,6 @@ function renderAll(){
   const a=A();
   document.body.classList.toggle('light',a.business.theme==='light');
   document.documentElement.style.setProperty('--accent',a.business.accent);
-  $('#statusBar')?.style.setProperty('display',a.business.statusBar?'':'none');
   renderHome(a);renderPayments(a);renderBalances(a);renderCustomers(a);renderSearch();renderTabs();
 }
 function renderTabs(){
@@ -502,10 +497,6 @@ function renderBalances(a){
     <div class="sec-row"><h2>Payouts</h2></div>
     <div class="list">${a.payouts.length?a.payouts.slice(0,20).map(p=>`<div class="li"><span>${fmtWhen(p.t)}</span><b>${fmtMoney(p.amount,a)}</b></div>`).join(''):'<div class="empty">No payouts yet</div>'}</div>`;
 }
-function updateClock(){
-  const d=new Date();
-  $('#clock').textContent=`${d.getHours()%12||12}:${String(d.getMinutes()).padStart(2,'0')}`;
-}
 
 /* ---------- sheets ---------- */
 function openSheet(title,html,kind=null){
@@ -573,7 +564,6 @@ function settingsHTML(){
     ${row('Currency',sel('business.currency',[['USD','USD ($)'],['EUR','EUR (€)'],['GBP','GBP (£)'],['CAD','CAD (C$)'],['AUD','AUD (A$)']],b.currency))}
     ${row('Accent color',`<input type="color" data-path="business.accent" value="${b.accent}">`)}
     ${row('Theme',sel('business.theme',[['dark','Dark'],['light','Light']],b.theme))}
-    ${row('Show fake status bar',chk('business.statusBar',b.statusBar))}
   </div>
   <div class="btnrow"><button class="btn" data-act="randomize">Randomize ${TIERS[b.tier].label} numbers</button></div>
   <div class="hint">Rebuilds 400 days of payments for this tier and clears payouts. Widgets, layout and notification rules are kept.</div>
@@ -885,11 +875,8 @@ document.addEventListener('pointerup',endScrub);
 document.addEventListener('pointercancel',endScrub);
 
 /* ---------- start ---------- */
-if(navigator.standalone||matchMedia('(display-mode: standalone)').matches) document.body.classList.add('standalone');
 S=load();
 renderAll();
-updateClock();
-setInterval(updateClock,15000);
 setInterval(summaryTick,30000);
 restartSim();
 </script>
