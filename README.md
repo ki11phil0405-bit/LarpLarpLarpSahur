@@ -8,3 +8,16 @@ A YouTube Studio–style analytics simulator (mobile first). Open `index.html` o
 - Edits are saved in the browser.
 
 For a clean full-screen view on iPhone: Safari → Share → **Add to Home Screen**, then open it from the home screen. The fake status bar hides itself there and the real one shows.
+
+## Margin Drive dashboard (`dashboard/`)
+
+A second, separate app in the Stripe-style look. Open `dashboard/index.html` on your phone (the original Studio simulator at the root is unchanged).
+
+- **Tiers**: Low, Medium, High, Income. Account settings → **Randomize** rebuilds 400 days of payments for that tier.
+- **Reports**: 1W / 4W / 1Y / MTD / QTD / YTD / ALL ranges with % change. **Drag your finger** on any chart to read the value and date (hover with a mouse).
+- **Editable home**: Edit to reorder, hide or show reports. Summary tiles and the default range are set in settings.
+- **Custom widgets**: add a number that adds its amount on each tap. Chart widgets plot every tap.
+- **Account and settings** (the store icon, top left): accounts, business, currency, theme and accent, chart style, number format, fees, widgets, notifications and backup export/import.
+- **Notifications**: native pop-ups via the Notification API. Rules for payment threshold, daily goal, refunds and a daily summary, each with editable title and message. Optional simulated sales while the app is open.
+
+Native alerts only fire while the app is open. Background alerts need a push server. On iPhone, add the app to the Home Screen first (Share → Add to Home Screen), then allow notifications.
