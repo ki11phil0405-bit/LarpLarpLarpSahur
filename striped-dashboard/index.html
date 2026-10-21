@@ -46,7 +46,7 @@
   .today .tl{color:var(--label);font-size:14px;line-height:17px}
   .today .tv{font-weight:600;font-size:21px;line-height:25px;margin-top:11px;font-variant-numeric:tabular-nums}
 
-  .ranges{display:flex;justify-content:space-between;padding:15px 8px 8px;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:3;background:var(--bg);overflow-x:auto;scrollbar-width:none}
+  .ranges{display:flex;justify-content:space-between;padding:10px 8px 8px;margin-top:6px;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:3;background:var(--bg);overflow-x:auto;scrollbar-width:none}
   .ranges[hidden]{display:none}
   .ranges::-webkit-scrollbar{display:none}
   .ranges button{flex:0 0 auto;border:0;background:none;color:var(--muted);font-weight:500;font-size:12px;height:32px;line-height:32px;padding:0 13px;border-radius:16px}
@@ -104,30 +104,76 @@
   .empty{padding:40px 16px;text-align:center;color:var(--muted)}
   .search{padding:12px 16px}
   .search input{width:100%;background:var(--card);border:0;border-radius:10px;padding:11px 14px;font-size:16px;outline:none;color:var(--text)}
-  .bal{text-align:center;padding:36px 16px 10px}
-  .bal .cc{color:var(--muted);font-size:15px}
-  .bal .amt{font-size:44px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-1px;margin-top:6px}
-  .bal .inc{color:var(--muted);font-size:15px;margin-top:6px}
+  .bal-head{display:flex;justify-content:center;align-items:center;gap:10px;padding-top:58px;font-size:17px;line-height:20px;font-weight:600}
+  .flag{font-size:20px;line-height:20px}
+  .bal-amt{text-align:center;font-size:40px;line-height:48px;font-weight:700;margin-top:16px;font-variant-numeric:tabular-nums}
+  .bal-inc{text-align:center;font-size:17px;line-height:20px;color:var(--muted);margin-top:13px}
+  .bal-sec{padding-top:45px}
+  .bal-sec.indent{padding:43px 16px 0 32px}
+  .bal-card{display:flex;align-items:center;gap:12px;margin:12px 16px 0;height:63px;border-radius:10px;background:var(--card);padding:0 16px;font-size:17px}
+  .bal-card b{font-weight:600}
+  .bal-card .amt{margin-left:auto;font-variant-numeric:tabular-nums}
+  .act-empty{margin:11px 16px 0;height:167px;border:1px dashed var(--line);border-radius:16px;background:var(--card);display:grid;place-items:center;color:var(--muted);font-size:17px}
+  .act-list{margin:11px 16px 0;border-radius:16px;background:var(--card);overflow:hidden}
+  .act-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line)}
+  .act-row:last-child{border-bottom:0}
+  .feedback{text-align:center;font-size:17px;line-height:22px;padding:41px 16px 30px}
+  .feedback.home{padding-top:18px}
+  .linkbtn{background:none;border:0;padding:0;color:var(--accent-text);font-weight:600;font-size:17px}
+
+  /* payments */
+  .ptabs{display:flex;overflow-x:auto;scrollbar-width:none}
+  .ptabs::-webkit-scrollbar{display:none}
+  .ptabs button{flex:0 0 auto;height:54px;padding:0 14px;border:0;background:none;color:var(--muted);font-size:16px;font-weight:600;position:relative}
+  .ptabs button.on{color:var(--accent-text)}
+  .ptabs button.on::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2.5px;background:var(--accent)}
+  .chips{display:flex;gap:8px;padding:20px 16px 0}
+  .chip{height:33px;padding:0 12px;border:1px solid var(--line);border-radius:17px;background:none;color:var(--text);font-size:16px}
+  .chip.on{border-color:var(--accent);color:var(--accent-text)}
+  .plist{margin-top:12px}
+  .empty-state{display:flex;flex-direction:column;align-items:center;text-align:center;padding:min(272px,28vh) 24px 40px}
+  .es-icon{width:60px;height:60px;border-radius:12px;background:var(--card);display:grid;place-items:center;color:var(--muted)}
+  .es-icon svg{width:30px;height:30px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .es-title{font-size:18px;line-height:22px;font-weight:600;margin-top:18px}
+  .es-sub{font-size:16px;line-height:20px;color:var(--muted);margin-top:8px}
 
   .backdrop{position:absolute;inset:0;background:rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .2s;z-index:10}
   .backdrop.open{opacity:1;pointer-events:auto}
-  .sheet{position:absolute;left:0;right:0;bottom:0;max-height:92%;background:var(--bg);border-radius:18px 18px 0 0;transform:translateY(102%);transition:transform .28s cubic-bezier(.2,.8,.2,1);z-index:11;display:flex;flex-direction:column;box-shadow:0 -8px 30px rgba(0,0,0,.4)}
+  .sheet{position:absolute;left:0;right:0;bottom:0;max-height:92%;background:var(--bg);border-radius:12px 12px 0 0;transform:translateY(102%);transition:transform .28s cubic-bezier(.2,.8,.2,1);z-index:11;display:flex;flex-direction:column;box-shadow:0 -8px 30px rgba(0,0,0,.4)}
   .sheet.open{transform:none}
-  .sheet-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 12px;border-bottom:1px solid var(--line)}
-  .sheet-head h3{margin:0;font-size:18px}
+  .sheet.full{top:calc(env(safe-area-inset-top) + 10px);max-height:none}
+  .sheet-head{position:relative;flex:0 0 auto;height:56px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--line)}
+  .sheet-head h3{margin:0;font-size:17px;font-weight:600;max-width:70%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .head-btn{position:absolute;top:6px;width:44px;height:44px;border:0;background:none;color:var(--text);display:grid;place-items:center;padding:0}
+  .head-btn[hidden]{display:none}
+  .head-btn svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .head-btn.close{right:10px}
+  .head-btn.back{left:10px}
   .sheet-body{overflow-y:auto;padding:4px 0 calc(24px + env(safe-area-inset-bottom));overscroll-behavior:contain}
-  .grp{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;padding:20px 16px 8px}
-  .grp-box{margin:0 16px 8px;background:var(--card);border-radius:14px;overflow:hidden}
-  .srow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border-bottom:1px solid var(--line);font-size:15.5px;min-height:50px}
-  .srow:last-child{border-bottom:0}
+  .grp{font-size:17px;line-height:20px;color:var(--text);padding:33px 16px 8px}
+  .grp.first{padding-top:24px}
+  .grp-box{margin:0 16px;border-top:1px solid var(--line)}
+  .srow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);font-size:17px;font-weight:600;min-height:56px;color:var(--text)}
   .srow>span:first-child{flex:1;min-width:0}
-  .srow small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
+  .srow small{display:block;color:var(--muted);font-size:15px;font-weight:400;margin-top:2px}
+  .srow .val{color:var(--muted);font-weight:400}
+  .srow.nav{width:100%;background:none;border-left:0;border-right:0;border-top:0;text-align:left;cursor:pointer}
+  .chev{width:22px;height:22px;flex:0 0 auto;fill:none;stroke:var(--text);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .acct{position:relative;display:flex;align-items:center;gap:12px;margin:0 16px;height:45px;border:1px solid var(--line);border-radius:10px;padding:0 12px 0 8px}
+  .acct-ico{width:28px;height:28px;border-radius:6px;background:var(--card);display:grid;place-items:center;color:var(--muted)}
+  .acct-ico svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linejoin:round;stroke-linecap:round}
+  .acct-name{flex:1;font-size:17px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .acct select{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+  .acct-note{font-size:16px;line-height:20px;color:var(--text);padding:9px 16px 16px}
   .srow.col{flex-direction:column;align-items:stretch}
   .srow input[type=text],.srow input[type=number],.srow input[type=time],.srow select{background:var(--card2);border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:15px;max-width:55%;text-align:right;outline:none;color:var(--text)}
   .srow input[type=text]{width:50%}
   .srow.col input[type=text]{width:100%;max-width:none;text-align:left}
   .srow input[type=number]{width:96px}
-  .srow input[type=checkbox]{width:44px;height:26px;accent-color:var(--accent)}
+  .srow input[type=checkbox]{-webkit-appearance:none;appearance:none;width:51px;height:31px;border-radius:16px;background:#39393d;position:relative;flex:0 0 auto;margin:0;transition:background .2s;cursor:pointer}
+  .srow input[type=checkbox]::before{content:"";position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.25);transition:transform .2s}
+  .srow input[type=checkbox]:checked{background:var(--accent)}
+  .srow input[type=checkbox]:checked::before{transform:translateX(20px)}
   .srow input[type=color]{width:52px;height:32px;border:0;background:none;padding:0}
   .srow textarea{width:100%;background:var(--card2);border:1px solid var(--line);border-radius:8px;padding:8px;font-size:15px;color:var(--text);resize:vertical;font-family:inherit;outline:none}
   .mv{display:flex;align-items:center;gap:6px}
@@ -136,7 +182,7 @@
   .btn.danger{background:rgba(255,107,122,.15);color:var(--bad)}
   .btn:disabled{opacity:.4}
   .btnrow{display:flex;flex-wrap:wrap;gap:8px;padding:12px 16px;justify-content:center}
-  .hint{color:var(--muted);font-size:12.5px;padding:4px 16px 8px;line-height:1.4}
+  .hint{color:var(--muted);font-size:16px;line-height:20px;padding:14px 16px 0}
   .sform{padding:16px;display:grid;gap:12px}
   .sform input{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px;font-size:16px;color:var(--text)}
 
@@ -150,7 +196,7 @@
   <div class="header-wrap">
   <header class="topbar">
     <button class="icon-btn" data-act="openSettings" aria-label="Account and settings">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 9h16v11H4z"/><path d="M3 9l1.5-5h15L21 9"/><path d="M9 20v-6h6v6"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"><path d="M4.5 10v9a1 1 0 0 0 1 1h13a1 1 0 0 0 1-1v-9"/><path d="M3.5 4h17l.6 4.2a2.4 2.4 0 0 1-4.7.6 2.4 2.4 0 0 1-4.4 0 2.4 2.4 0 0 1-4.4 0A2.4 2.4 0 0 1 2.9 8.2z"/><path d="M4.5 15h15"/></svg>
     </button>
     <div class="title" id="topTitle">Margin Drive</div>
     <button class="fab" data-act="openCreate" aria-label="Create">+</button>
@@ -163,10 +209,12 @@
       <div class="sec-row"><h2>Reports overview</h2><button class="link" data-act="toggleEdit" id="editBtn">Edit</button></div>
       <nav class="ranges" id="ranges"></nav>
       <div id="reports"></div>
+      <div class="feedback home">Have a suggestion? <button class="linkbtn" data-act="feedback">Share feedback</button></div>
     </section>
     <section class="screen" data-screen="payments">
-      <div class="sec-row"><h2>Payments</h2></div>
-      <div class="list" id="payList"></div>
+      <nav class="ptabs" id="ptabs"></nav>
+      <div class="chips" id="pchips"></div>
+      <div id="payList"></div>
     </section>
     <section class="screen" data-screen="balances"><div id="balances"></div></section>
     <section class="screen" data-screen="customers"><div id="custList"></div></section>
@@ -177,16 +225,20 @@
   </main>
 
   <nav class="tabbar">
-    <button data-act="tab" data-v="home" class="on"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Home</button>
-    <button data-act="tab" data-v="payments"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18"/></svg>Payments</button>
-    <button data-act="tab" data-v="balances"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M3 10V6l12-2v3"/><path d="M16 14h2"/></svg>Balances</button>
-    <button data-act="tab" data-v="customers"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.5-3.5 3.2-5.5 6.5-5.5s6 2 6.5 5.5"/><circle cx="17" cy="9" r="2.5"/></svg>Customers</button>
+    <button data-act="tab" data-v="home" class="on"><svg viewBox="0 0 24 24"><path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/><path d="M9.5 20v-6h5v6"/></svg>Home</button>
+    <button data-act="tab" data-v="payments"><svg viewBox="0 0 24 24"><rect x="6.5" y="5" width="14.5" height="10.5" rx="1.5"/><path d="M3 8.5v9A1.5 1.5 0 0 0 4.5 19H18"/><circle cx="13.75" cy="10.25" r="2.2"/></svg>Payments</button>
+    <button data-act="tab" data-v="balances"><svg viewBox="0 0 24 24"><path d="M4 7v11a2 2 0 0 0 2 2h13a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1H6a2 2 0 0 1-2-2 2 2 0 0 1 2-2h11.5"/><circle cx="16" cy="14" r="1.1" fill="currentColor"/></svg>Balances</button>
+    <button data-act="tab" data-v="customers"><svg viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3.2"/><path d="M3 20c.4-3.6 2.9-5.6 6-5.6s5.6 2 6 5.6"/><circle cx="16.5" cy="7.5" r="2.5"/><path d="M17.5 12.8c2.1.4 3.5 2.1 3.8 4.7"/></svg>Customers</button>
     <button data-act="tab" data-v="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l5 5"/></svg>Search</button>
   </nav>
 
   <div class="backdrop" id="backdrop" data-act="closeSheet"></div>
   <div class="sheet" id="sheet" role="dialog" aria-modal="true">
-    <div class="sheet-head"><h3 id="sheetTitle"></h3><button class="icon-btn sm" data-act="closeSheet" aria-label="Close">✕</button></div>
+    <div class="sheet-head">
+      <button class="head-btn back" id="sheetBack" data-act="settingsBack" aria-label="Back" hidden><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <h3 id="sheetTitle"></h3>
+      <button class="head-btn close" data-act="closeSheet" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </div>
     <div class="sheet-body" id="sheetBody"></div>
   </div>
   <div class="toast" id="toast"></div>
@@ -214,11 +266,23 @@ const METRICS={
   refunds:{short:'Refunds',label:'Refunds',fmt:'money',f:rs=>sum(rs,'refunds')},
   fees:{short:'Fees',label:'Fees',fmt:'money',f:rs=>sum(rs,'fees')},
   aov:{short:'Avg payment',label:'Average payment',fmt:'money',f:rs=>{const c=sum(rs,'count');return c?sum(rs,'gross')/c:0}},
+  risk:{short:'High-risk',label:'High-risk payments',fmt:'count',f:rs=>sum(rs,'risk')},
+  disputeRate:{short:'Dispute activity',label:'Dispute activity',fmt:'pct',f:rs=>{const c=sum(rs,'count');return c?sum(rs,'disputes')/c*100:0}},
+  disputes:{short:'Disputes',label:'Dispute count',fmt:'count',f:rs=>sum(rs,'disputes')},
 };
+const NEW_REPORTS=['risk','disputeRate','disputes'];
+const ICON_STORE='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"><path d="M4.5 10v9a1 1 0 0 0 1 1h13a1 1 0 0 0 1-1v-9"/><path d="M3.5 4h17l.6 4.2a2.4 2.4 0 0 1-4.7.6 2.4 2.4 0 0 1-4.4 0 2.4 2.4 0 0 1-4.4 0A2.4 2.4 0 0 1 2.9 8.2z"/><path d="M4.5 15h15"/></svg>';
+const ICON_PAY='<svg viewBox="0 0 24 24"><rect x="6.5" y="5" width="14.5" height="10.5" rx="1.5"/><path d="M3 8.5v9A1.5 1.5 0 0 0 4.5 19H18"/><circle cx="13.75" cy="10.25" r="2.2"/></svg>';
+const ICON_CHEV='<svg class="chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>';
+const ICON_UPDOWN='<svg class="chev" viewBox="0 0 24 24"><path d="M8 9l4-4 4 4M8 15l4 4 4-4"/></svg>';
+const FLAGS={USD:'🇺🇸',EUR:'🇪🇺',GBP:'🇬🇧',CAD:'🇨🇦',AUD:'🇦🇺'};
+const PTABS=[['payments','Payments'],['invoices','Invoices'],['subscriptions','Subscriptions'],['links','Payment Links']];
+const PSTATUS=[['all','Status'],['succeeded','Succeeded'],['refunded','Refunded']];
+const PCREATED=[['all','Created',null],['today','Today',0],['7d','Last 7 days',6],['30d','Last 30 days',29]];
 const TAB_TITLES={payments:'Payments',balances:'Balances',customers:'Customers',search:'Search'};
 const MAPS=new WeakMap();
 const CHARTS=[];
-const UI={tab:'home',editing:false,sheet:null};
+const UI={tab:'home',editing:false,sheet:null,settingsPage:null,ptab:'payments',pstatus:'all',pcreated:'all'};
 let S, simT=null, toastT=null, hoverChart=null, activeChart=null;
 
 const uid=()=>Math.random().toString(36).slice(2,10);
@@ -226,7 +290,7 @@ const rnd=(a,b)=>a+Math.random()*(b-a);
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
 const round2=v=>Math.round(v*100)/100;
 const pick=arr=>arr[Math.floor(Math.random()*arr.length)];
-const sum=(rs,k)=>rs.reduce((s,r)=>s+r[k],0);
+const sum=(rs,k)=>rs.reduce((s,r)=>s+(r[k]||0),0);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fill=(tpl,vars)=>String(tpl).replace(/\{(\w+)\}/g,(m,k)=>vars[k]!==undefined?vars[k]:m);
 const dayKey=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
@@ -244,7 +308,7 @@ function fmtMoney(v,a){
 function fmtCount(v,a){
   return new Intl.NumberFormat('en-US',a.format.compact?{notation:'compact',maximumFractionDigits:1}:{maximumFractionDigits:0}).format(v);
 }
-const fmtVal=(id,v,a)=>METRICS[id].fmt==='count'?fmtCount(v,a):fmtMoney(v,a);
+const fmtVal=(id,v,a)=>METRICS[id].fmt==='count'?fmtCount(v,a):METRICS[id].fmt==='pct'?`${v.toFixed(2)}%`:fmtMoney(v,a);
 const fmtDay=d=>d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
 const fmtSpan=(s,e)=>e?`${fmtDay(s)} – ${fmtDay(e)}, ${e.getFullYear()}`:`${fmtDay(s)} – Today`;
 const fmtWhen=t=>new Date(t).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
@@ -256,6 +320,7 @@ function A(){
   let a=S.accounts.find(x=>x.id===S.activeId);
   if(!a){a=S.accounts[0];S.activeId=a.id;}
   a.brief ||= {text:'',profile:null};
+  for(const id of Object.keys(METRICS)) if(!a.home.layout.some(x=>x.id===id)) a.home.layout.push({id,on:NEW_REPORTS.includes(id)});
   return a;
 }
 function DEFAULT_RULES(tier){
@@ -275,7 +340,8 @@ function newAccount(name,tier){
     format:{decimals:2,compact:false},
     home:{range:'1W',today:['gross','payments','customers'],layout:[
       {id:'gross',on:true},{id:'net',on:true},{id:'payments',on:true},
-      {id:'refunds',on:false},{id:'fees',on:false},{id:'customers',on:false},{id:'aov',on:false}]},
+      {id:'customers',on:true},{id:'refunds',on:false},{id:'fees',on:false},{id:'aov',on:false},
+      {id:'risk',on:true},{id:'disputeRate',on:true},{id:'disputes',on:true}]},
     chart:{type:'line',smooth:false,startLabel:true},
     widgets:[],
     notifications:{enabled:false,sound:true,sticky:false,simulate:false,simEvery:45,rules:DEFAULT_RULES(tier)},
@@ -355,7 +421,7 @@ function genRows(a,keys,scale){
   const amount=amountFn(a);
   let trend=1;
   return keys.map(k=>{
-    const row={d:k,gross:0,count:0,customers:0,refunds:0};
+    const row={d:k,gross:0,count:0,customers:0,refunds:0,risk:0,disputes:0};
     if(p){
       row.count=Math.round(rnd(p.daily[0],p.daily[1])*(p.random?rnd(0,2):rnd(0.8,1.2))*(spike.has(k)?p.dropMult:1));
       row.gross=round2(Array.from({length:row.count},amount).reduce((t,x)=>t+x,0)*scale);
@@ -368,6 +434,8 @@ function genRows(a,keys,scale){
     if(row.count){
       row.customers=Math.round(row.count*rnd(0.15,0.5));
       if(Math.random()<0.07) row.refunds=round2(row.gross*rnd(0.02,0.12));
+      row.risk=Math.random()<0.06?Math.max(1,Math.round(row.count*rnd(0,0.03))):0;
+      row.disputes=Math.random()<0.015?1:0;
     }
     return row;
   });
@@ -594,7 +662,18 @@ const txnRow=(t,a)=>`<div class="txn">
   <div class="tm"><div class="tn">${esc(t.customer)}</div><div class="ts">${fmtWhen(t.t)} · ${t.kind==='refund'?'Refunded':'Succeeded'}</div></div>
   <div class="ta ${t.kind==='refund'?'neg':''}">${t.kind==='refund'?'−':''}${fmtMoney(t.amount,a)}</div></div>`;
 function renderPayments(a){
-  $('#payList').innerHTML=a.txns.length?a.txns.slice(0,80).map(t=>txnRow(t,a)).join(''):'<div class="empty">No payments yet</div>';
+  const tab=UI.ptab,st=PSTATUS.find(x=>x[0]===UI.pstatus),cr=PCREATED.find(x=>x[0]===UI.pcreated);
+  $('#ptabs').innerHTML=PTABS.map(([k,l])=>`<button class="${k===tab?'on':''}" data-act="ptab" data-v="${k}">${l}</button>`).join('');
+  $('#pchips').innerHTML=`<button class="chip${st[0]!=='all'?' on':''}" data-act="pchip" data-v="status">${st[1]}</button><button class="chip${cr[0]!=='all'?' on':''}" data-act="pchip" data-v="created">${cr[1]}</button>`;
+  let list=[];
+  if(tab==='payments'){
+    const since=cr[2]===null?0:startOfDay(addDays(new Date(),-cr[2])).getTime();
+    list=a.txns.filter(t=>(st[0]==='all'||(st[0]==='refunded')===(t.kind==='refund'))&&t.t>=since);
+  }
+  const label=PTABS.find(x=>x[0]===tab)[1].toLowerCase();
+  $('#payList').innerHTML=list.length
+    ?`<div class="plist">${list.slice(0,80).map(t=>txnRow(t,a)).join('')}</div>`
+    :`<div class="empty-state"><div class="es-icon">${ICON_PAY}</div><div class="es-title">No ${label} found</div><div class="es-sub">Try updating the selected filters.</div></div>`;
 }
 function renderSearch(){
   const a=A(),q=$('#q').value.trim().toLowerCase();
@@ -624,19 +703,26 @@ function renderCustomers(a){
     <div class="list">${top.length?top.map(c=>`<div class="txn"><div class="av">${esc(initials(c.name))}</div><div class="tm"><div class="tn">${esc(c.name)}</div><div class="ts">${c.count} payment${c.count===1?'':'s'}</div></div><div class="ta">${fmtMoney(c.total,a)}</div></div>`).join(''):'<div class="empty">No customers yet</div>'}</div>`;
 }
 function renderBalances(a){
-  const bal=balanceOf(a),inc=dayTotals(a,startOfDay(new Date())).net;
-  $('#balances').innerHTML=`<div class="bal"><div class="cc">${a.business.currency}</div>
-      <div class="amt">${fmtMoney(bal,a)}</div><div class="inc">${fmtMoney(inc,a)} incoming today</div></div>
-    <div class="sec-row"><h2>Payments balance</h2></div>
-    <div class="list"><div class="li"><span>${a.business.currency}</span><b>${fmtMoney(bal,a)}</b></div></div>
-    <div class="btnrow"><button class="btn" data-act="payout" ${bal<=0?'disabled':''}>Pay out balance</button></div>
-    <div class="sec-row"><h2>Payouts</h2></div>
-    <div class="list">${a.payouts.length?a.payouts.slice(0,20).map(p=>`<div class="li"><span>${fmtWhen(p.t)}</span><b>${fmtMoney(p.amount,a)}</b></div>`).join(''):'<div class="empty">No payouts yet</div>'}</div>`;
+  const bal=balanceOf(a),inc=dayTotals(a,startOfDay(new Date())).net,cur=a.business.currency,flag=FLAGS[cur]||'';
+  const acts=[
+    ...a.payouts.map(p=>({t:p.t,label:'Payout',amount:-p.amount})),
+    ...a.txns.slice(0,8).map(t=>({t:t.t,label:`${t.kind==='refund'?'Refund':'Payment'} · ${t.customer}`,amount:t.kind==='refund'?-t.amount:t.amount})),
+  ].sort((x,y)=>y.t-x.t).slice(0,8);
+  $('#balances').innerHTML=`<div class="bal-head"><span class="flag">${flag}</span>${cur}</div>
+    <div class="bal-amt">${fmtMoney(bal,a)}</div>
+    <div class="bal-inc">${fmtMoney(inc,a)} incoming</div>
+    <div class="sec-row bal-sec"><h2>Payments balance</h2></div>
+    <div class="bal-card"><span class="flag">${flag}</span><b>${cur}</b><span class="amt">${fmtMoney(bal,a)}</span></div>
+    <div class="sec-row bal-sec indent"><h2>Recent activity</h2></div>
+    ${acts.length?`<div class="act-list">${acts.map(x=>`<div class="act-row"><div class="tm"><div class="tn">${esc(x.label)}</div><div class="ts">${fmtWhen(x.t)}</div></div><div class="ta${x.amount<0?' neg':''}">${x.amount<0?'−':''}${fmtMoney(Math.abs(x.amount),a)}</div></div>`).join('')}</div>`:'<div class="act-empty">No activity yet</div>'}
+    <div class="feedback">Have a suggestion? <button class="linkbtn" data-act="feedback">Share feedback</button></div>`;
 }
 
 /* ---------- sheets ---------- */
 function openSheet(title,html,kind=null){
   UI.sheet=kind;
+  $('#sheet').classList.toggle('full',kind==='settings');
+  $('#sheetBack').hidden=true;
   $('#sheetTitle').textContent=title;
   $('#sheetBody').innerHTML=html;
   $('#sheetBody').scrollTop=0;
@@ -645,6 +731,7 @@ function openSheet(title,html,kind=null){
 }
 function closeSheet(){
   UI.sheet=null;
+  UI.settingsPage=null;
   $('#sheet').classList.remove('open');
   $('#backdrop').classList.remove('open');
 }
@@ -654,12 +741,18 @@ function refreshSettings(){
   body.innerHTML=settingsHTML();
   body.scrollTop=top;
 }
-function openSettings(){ openSheet('Account and settings',settingsHTML(),'settings'); }
+const SETTINGS_PAGES={account:'Manage accounts',business:'Business details',brief:'Describe your business',home:'Home and reports',charts:'Charts and numbers',widgets:'Custom widgets',notifications:'Notifications',appearance:'Appearance',data:'Backup and reset'};
+function openSettings(page=null){
+  UI.settingsPage=page;
+  openSheet(page?SETTINGS_PAGES[page]:'Account and settings',settingsHTML(),'settings');
+  $('#sheetBack').hidden=!page;
+}
 function createHTML(){
   return `<div class="list">
     <button class="li" data-act="formPayment">New payment</button>
     <button class="li" data-act="formRefund">New refund</button>
     <button class="li" data-act="addWidget">New custom widget</button>
+    <button class="li" data-act="payout">Pay out balance</button>
     <button class="li" data-act="testNote">Send test notification</button>
   </div>`;
 }
@@ -674,86 +767,103 @@ function permText(){
   if(!('Notification' in window)) return 'Not supported here. On iPhone: Share → Add to Home Screen.';
   return {granted:'Allowed on this device',default:'Not allowed yet. Tap Allow notifications.',denied:'Blocked. Re-enable in browser settings.'}[Notification.permission]||'';
 }
-function briefSection(a){
-  const br=a.brief||{text:'',profile:null};
-  return `<div class="grp">Describe your business</div>
-  <div class="grp-box">
-    <div class="srow col"><span>In plain English</span><textarea rows="3" data-path="brief.text" placeholder="e.g. clothing brand, min price $60, drops 2x a month, super successful">${esc(br.text)}</textarea></div>
-    ${br.profile?`<div class="srow col"><span>What it reads as</span><small>${esc(summarize(br.profile))}</small></div>`:''}
-  </div>
-  <div class="btnrow"><button class="btn" data-act="readBrief">Read it and randomize</button><button class="btn ghost" data-act="clearBrief">Use tier instead</button></div>
-  <div class="hint">Understands prices ($60, or $799 $999 $1200), sales a week or day (12-18 a week), drops (2x a month) and "random". Other words are ignored.</div>`;
-}
 function settingsHTML(){
-  const a=A(),b=a.business,n=a.notifications;
+  const a=A(),b=a.business,n=a.notifications,br=a.brief;
   const row=(label,ctrl,note='')=>`<div class="srow"><span>${label}${note?`<small>${note}</small>`:''}</span>${ctrl}</div>`;
   const sel=(p,opts,val,numeric=false)=>`<select data-path="${p}"${numeric?' data-type="num"':''}>${opts.map(([v,l])=>`<option value="${v}"${String(v)===String(val)?' selected':''}>${l}</option>`).join('')}</select>`;
   const chk=(p,val)=>`<input type="checkbox" data-path="${p}"${val?' checked':''}>`;
   const num=(p,val,step=1)=>`<input type="number" data-type="num" data-path="${p}" value="${val}" step="${step}">`;
   const txt=(p,val,max=40)=>`<input type="text" maxlength="${max}" data-path="${p}" value="${esc(val)}">`;
+  const nav=(id)=>`<button class="srow nav" data-act="settingsPage" data-v="${id}"><span>${SETTINGS_PAGES[id]}</span>${ICON_CHEV}</button>`;
   const tiers=Object.entries(TIERS).map(([k,v])=>[k,v.label]);
   const metricOpts=Object.keys(METRICS).map(k=>[k,METRICS[k].label]);
   const layoutName=it=>it.id.startsWith('cw:')?(a.widgets.find(w=>'cw:'+w.id===it.id)?.name||'Widget'):METRICS[it.id].label;
   const last=a.home.layout.length-1;
-  return `
-  <div class="grp">Account</div>
-  <div class="grp-box">
-    <div class="srow"><span>Business</span><select id="acctSel">${S.accounts.map(x=>`<option value="${x.id}"${x.id===a.id?' selected':''}>${esc(x.business.name)}</option>`).join('')}</select></div>
-    <div class="btnrow"><button class="btn ghost" data-act="addAcct">Add account</button><button class="btn danger" data-act="delAcct">Delete this account</button></div>
-  </div>
-
+  switch(UI.settingsPage){
+  case null: return `
+  <div class="grp first">Account</div>
+  <label class="acct"><span class="acct-ico">${ICON_STORE}</span><span class="acct-name">${esc(b.name)}</span>${ICON_UPDOWN}
+    <select id="acctSel" aria-label="Switch account">${S.accounts.map(x=>`<option value="${x.id}"${x.id===a.id?' selected':''}>${esc(x.business.name)}</option>`).join('')}</select></label>
+  <div class="acct-note">Saved on this device · ${S.accounts.length} account${S.accounts.length===1?'':'s'}</div>
+  <div class="grp-box">${nav('account')}</div>
   <div class="grp">Business</div>
+  <div class="grp-box">${nav('business')}${nav('brief')}</div>
+  <div class="grp">Dashboard</div>
+  <div class="grp-box">${nav('home')}${nav('charts')}${nav('widgets')}</div>
+  <div class="grp">Global settings</div>
+  <div class="grp-box">${nav('notifications')}${nav('appearance')}</div>
+  <div class="grp">Data</div>
+  <div class="grp-box">${nav('data')}</div>
+  <div class="grp">About</div>
+  <div class="grp-box"><div class="srow"><span>Version</span><span class="val">v1.0.0</span></div></div>
+  <div style="height:24px"></div>`;
+
+  case 'account': return `
+  <div class="grp first">Accounts</div>
+  <div class="grp-box">${S.accounts.map(x=>`<div class="srow"><span>${esc(x.business.name)}</span><span class="val">${x.id===a.id?'Current':TIERS[x.business.tier].label}</span></div>`).join('')}</div>
+  <div class="btnrow"><button class="btn ghost" data-act="addAcct">Add account</button><button class="btn danger" data-act="delAcct">Delete this account</button></div>`;
+
+  case 'business': return `
+  <div class="grp first">Business</div>
   <div class="grp-box">
     ${row('Name',txt('business.name',b.name))}
     ${row('Avatar letter',txt('business.avatar',b.avatar,2))}
     ${row('Tier',sel('business.tier',tiers,b.tier),'Sets how big the random numbers are')}
     ${row('Currency',sel('business.currency',[['USD','USD ($)'],['EUR','EUR (€)'],['GBP','GBP (£)'],['CAD','CAD (C$)'],['AUD','AUD (A$)']],b.currency))}
-    ${row('Accent color',`<input type="color" data-path="business.accent" value="${b.accent}">`)}
-    ${row('Theme',sel('business.theme',[['dark','Dark'],['light','Light']],b.theme))}
   </div>
   <div class="btnrow"><button class="btn" data-act="randomize">Randomize ${TIERS[b.tier].label} numbers</button></div>
-  <div class="hint">Rebuilds 400 days of payments for this tier and clears payouts. Widgets, layout and notification rules are kept.</div>
+  <div class="hint">Rebuilds 400 days of payments for this tier and clears payouts. Widgets, layout and notification rules are kept.</div>`;
 
-  ${briefSection(a)}
-  <div class="grp">Home</div>
+  case 'brief': return `
+  <div class="grp first">In plain English</div>
+  <div class="grp-box">
+    <div class="srow col"><textarea rows="4" data-path="brief.text" placeholder="e.g. clothing brand, min price $60, drops 2x a month, super successful">${esc(br.text)}</textarea></div>
+    ${br.profile?`<div class="srow col"><span>What it reads as<small>${esc(summarize(br.profile))}</small></span></div>`:''}
+  </div>
+  <div class="btnrow"><button class="btn" data-act="readBrief">Read it and randomize</button><button class="btn ghost" data-act="clearBrief">Use tier instead</button></div>
+  <div class="hint">Understands prices ($60, or $799 $999 $1200), sales a week or day (12-18 a week), drops (2x a month), all-time sales and "random". Other words are ignored.</div>`;
+
+  case 'home': return `
+  <div class="grp first">Home</div>
   <div class="grp-box">
     ${row('Default range',sel('home.range',RANGES.map(r=>[r,r]),a.home.range))}
-    ${[0,1,2].map(i=>row(`Summary tile ${i+1}`,sel(`home.today.${i}`,metricOpts,a.home.today[i]))).join('')}
+    ${[0,1,2].map(i=>row(`Today tile ${i+1}`,sel(`home.today.${i}`,metricOpts,a.home.today[i]))).join('')}
   </div>
-  <div class="grp">Reports layout</div>
+  <div class="grp">Reports</div>
   <div class="grp-box">
     ${a.home.layout.map((it,i)=>`<div class="srow"><span>${esc(layoutName(it))}</span><span class="mv">
       <button class="mini" data-act="up" data-i="${i}"${i===0?' disabled':''}>▲</button>
       <button class="mini" data-act="down" data-i="${i}"${i===last?' disabled':''}>▼</button>
       <input type="checkbox" data-path="home.layout.${i}.on"${it.on?' checked':''}></span></div>`).join('')}
-  </div>
+  </div>`;
 
-  <div class="grp">Charts</div>
+  case 'charts': return `
+  <div class="grp first">Charts</div>
   <div class="grp-box">
     ${row('Chart style',sel('chart.type',[['line','Line'],['area','Area'],['bar','Bars']],a.chart.type))}
     ${row('Smooth curve',chk('chart.smooth',a.chart.smooth))}
     ${row('Start value label',chk('chart.startLabel',a.chart.startLabel))}
   </div>
-
   <div class="grp">Numbers</div>
   <div class="grp-box">
     ${row('Decimals',sel('format.decimals',[[2,'Cents ($1.23)'],[0,'Whole ($1)']],a.format.decimals,true))}
     ${row('Compact (1.2K)',chk('format.compact',a.format.compact))}
     ${row('Card fee %',num('fee.pct',a.fee.pct,'0.1'),'Used to work out net volume')}
     ${row('Fixed fee per payment',num('fee.fixed',a.fee.fixed,'0.01'))}
-  </div>
+  </div>`;
 
-  <div class="grp">Custom widgets</div>
-  ${a.widgets.map((w,i)=>`<div class="grp-box">
+  case 'widgets': return `
+  ${a.widgets.map((w,i)=>`<div class="grp${i===0?' first':''}">${esc(w.name)}</div><div class="grp-box">
     ${row('Name',txt(`widgets.${i}.name`,w.name))}
     ${row('Display',sel(`widgets.${i}.type`,[['number','Number'],['chart','Number + chart']],w.type))}
     ${row('Amount per tap',num(`widgets.${i}.step`,w.step,'0.01'))}
-    <div class="btnrow"><button class="btn ghost" data-act="resetWidget" data-id="${w.id}">Reset to 0</button><button class="btn danger" data-act="delWidget" data-id="${w.id}">Remove</button></div>
-  </div>`).join('')}
+  </div>
+  <div class="btnrow"><button class="btn ghost" data-act="resetWidget" data-id="${w.id}">Reset to 0</button><button class="btn danger" data-act="delWidget" data-id="${w.id}">Remove</button></div>`).join('')}
   <div class="btnrow"><button class="btn" data-act="addWidget">Add custom widget</button></div>
-  <div class="hint">Tap a custom number on the home screen to add its amount. Chart widgets plot every tap.</div>
+  <div class="hint">Tap + on a widget to add its amount. Triple-tap the number to type a new value. Chart widgets plot every change.</div>`;
 
-  <div class="grp">Notifications</div>
+  case 'notifications': return `
+  <div class="grp first">Notifications</div>
   <div class="grp-box">
     ${row('Native notifications',chk('notifications.enabled',n.enabled),permText())}
     ${row('Play sound',chk('notifications.sound',n.sound))}
@@ -762,24 +872,33 @@ function settingsHTML(){
     ${row('Seconds between sales',num('notifications.simEvery',n.simEvery,'5'))}
   </div>
   <div class="btnrow"><button class="btn ghost" data-act="askPerm">Allow notifications</button><button class="btn ghost" data-act="testNote">Send test</button></div>
-  ${n.rules.map((r,i)=>`<div class="grp-box">
-    ${row(esc(r.label),chk(`notifications.rules.${i}.on`,r.on))}
+  ${n.rules.map((r,i)=>`<div class="grp">${esc(r.label)}</div><div class="grp-box">
+    ${row('On',chk(`notifications.rules.${i}.on`,r.on))}
     ${r.kind==='payment'?row('Minimum amount',num(`notifications.rules.${i}.value`,r.value,'1')):''}
     ${r.kind==='goal'?row('Daily gross goal',num(`notifications.rules.${i}.value`,r.value,'1')):''}
     ${r.kind==='summary'?row('Send at',`<input type="time" data-path="notifications.rules.${i}.time" value="${r.time}">`):''}
     <div class="srow col"><span>Title</span><input type="text" maxlength="60" data-path="notifications.rules.${i}.title" value="${esc(r.title)}"></div>
     <div class="srow col"><span>Message</span><input type="text" maxlength="120" data-path="notifications.rules.${i}.body" value="${esc(r.body)}"></div>
   </div>`).join('')}
-  <div class="hint">Message placeholders: {amount}, {customer}, {count}, {goal}. Summary alerts fire while the app is open at that time.</div>
+  <div class="hint">Message placeholders: {amount}, {customer}, {count}, {goal}. Summary alerts fire while the app is open at that time.</div>`;
 
-  <div class="grp">Data</div>
+  case 'appearance': return `
+  <div class="grp first">Appearance</div>
   <div class="grp-box">
-    <div class="btnrow">
-      <button class="btn ghost" data-act="export">Export backup</button>
-      <label class="btn ghost" style="cursor:pointer">Import backup<input id="importFile" type="file" accept="application/json" hidden></label>
-    </div>
-    <div class="btnrow"><button class="btn danger" data-act="resetAll">Erase everything</button></div>
+    ${row('Theme',sel('business.theme',[['dark','Dark'],['light','Light']],b.theme))}
+    ${row('Accent color',`<input type="color" data-path="business.accent" value="${b.accent}">`)}
   </div>`;
+
+  case 'data': return `
+  <div class="grp first">Backup</div>
+  <div class="btnrow">
+    <button class="btn ghost" data-act="export">Export backup</button>
+    <label class="btn ghost" style="cursor:pointer">Import backup<input id="importFile" type="file" accept="application/json" hidden></label>
+  </div>
+  <div class="grp">Reset</div>
+  <div class="btnrow"><button class="btn danger" data-act="resetAll">Erase everything</button></div>`;
+  }
+  return '';
 }
 
 /* ---------- actions ---------- */
@@ -819,7 +938,7 @@ function act(name,el){
       a.widgets.push(w);
       a.home.layout.push({id:'cw:'+w.id,on:true});
       save();renderAll();
-      if(UI.sheet==='settings') refreshSettings(); else openSettings();
+      openSettings('widgets');
       break;
     }
     case 'randomize': genData(a);save();renderAll();refreshSettings();toast('Numbers randomized',`${TIERS[a.business.tier].label} tier`);break;
@@ -864,6 +983,16 @@ function act(name,el){
     }
     case 'clearBrief': a.brief.profile=null;genData(a);save();renderAll();refreshSettings();toast('Using tier numbers');break;
     case 'closeSheet': closeSheet();break;
+    case 'settingsPage': openSettings(el.dataset.v);break;
+    case 'settingsBack': openSettings(null);break;
+    case 'ptab': UI.ptab=el.dataset.v;renderPayments(a);break;
+    case 'pchip': {
+      const list=el.dataset.v==='status'?PSTATUS:PCREATED,key=el.dataset.v==='status'?'pstatus':'pcreated';
+      const i=list.findIndex(x=>x[0]===UI[key]);
+      UI[key]=list[(i+1)%list.length][0];
+      renderPayments(a);break;
+    }
+    case 'feedback': toast('Thanks for the suggestion','Feedback is not sent anywhere yet.');break;
   }
 }
 function commitLayout(){ save();renderAll();refreshSettings(); }
@@ -1053,6 +1182,9 @@ function setWindowTotal(a,id,s,e,target){
   else if(id==='customers') scaleField('customers',target,sum(cur,'customers'),true);
   else if(id==='refunds') scaleField('refunds',target,R,false);
   else if(id==='aov'&&target>0) scaleField('count',G/target,C,true);
+  else if(id==='risk') scaleField('risk',target,sum(cur,'risk'),true);
+  else if(id==='disputes') scaleField('disputes',target,sum(cur,'disputes'),true);
+  else if(id==='disputeRate') scaleField('disputes',target*C/100,sum(cur,'disputes'),true);
   MAPS.delete(a);
 }
 
