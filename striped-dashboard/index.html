@@ -11,7 +11,7 @@
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>
-  :root{--bg:#14171d;--card:#1b1e25;--card2:#1b1e25;--line:#2b3039;--text:#c9ced8;--muted:#8c99ad;--dim:#5f6878;--grid:#2b3039;--accent:#5f4cfe;--accent-text:#9289fe;--tab-text:#a9b2c2;--bad:#ff6b7a}
+  :root{--bg:#14171d;--card:#1b1e25;--card2:#1b1e25;--line:#2b3039;--text:#c9ced8;--muted:#8c99ad;--dim:#5f6878;--grid:#2b3039;--accent:#5f4cfe;--accent-text:#9289fe;--tab-text:#a9b2c2;--label:#9699a0;--bad:#ff6b7a}
   body.light{--bg:#f6f7fb;--card:#ffffff;--card2:#f0f2f7;--line:#e2e5ee;--text:#111521;--muted:#5f6880;--dim:#98a0b3;--grid:#e2e5ee}
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{margin:0;height:100%;background:var(--bg);color:var(--text)}
@@ -21,50 +21,47 @@
   #app{position:relative;max-width:440px;height:100vh;height:100dvh;margin:0 auto;padding-top:env(safe-area-inset-top);background:var(--bg);display:flex;flex-direction:column;overflow:hidden}
   @media(min-width:520px){body{background:#000;padding:24px 0;height:auto}#app{height:956px;border-radius:44px;box-shadow:0 0 0 10px #1c1c1c}}
 
-  .header-wrap{flex:0 0 auto;background:var(--bg);border-bottom:1px solid var(--line)}
-  .topbar{height:52px;display:flex;align-items:center;gap:12px;padding:0 16px}
+  .header-wrap{flex:0 0 auto;background:var(--bg)}
+  .topbar{height:32px;display:flex;align-items:center;gap:12px;padding:0 22px 0 20px}
   .topbar .title{flex:1;text-align:center;font-weight:600;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .icon-btn{width:32px;height:32px;border:0;border-radius:9px;background:var(--card);display:grid;place-items:center;flex:0 0 auto}
-  .icon-btn svg{width:18px;height:18px}
+  .icon-btn{width:27px;height:27px;border:0;border-radius:8px;background:var(--card);display:grid;place-items:center;flex:0 0 auto}
+  .icon-btn svg{width:19px;height:19px}
   .icon-btn.sm{width:32px;height:32px;background:var(--card2)}
-  .fab{width:32px;height:32px;border:0;border-radius:50%;background:var(--accent);color:#fff;font-size:22px;line-height:1;flex:0 0 auto;display:grid;place-items:center;padding-bottom:2px}
+  .fab{width:30px;height:30px;border:0;border-radius:50%;background:var(--accent);color:#fff;font-size:22px;line-height:1;flex:0 0 auto;display:grid;place-items:center;padding-bottom:2px}
   .appmark{width:26px;height:26px;border-radius:7px;display:block}
 
   #screens{flex:1;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding-bottom:16px}
   .screen{display:none}.screen.on{display:block}
   .sec-h{font-size:19px;font-weight:700;padding:14px 16px 0}
-  .sec-row{display:flex;align-items:center;justify-content:space-between;padding:22px 16px 0}
-  .sec-row h2{margin:0;font-size:19px;font-weight:700}
-  .link{background:none;border:0;color:var(--accent);font-weight:600;font-size:16px;padding:4px 0}
+  .sec-row{display:flex;align-items:baseline;justify-content:space-between;padding:19px 16px 0}
+  .sec-row h2{margin:0;font-size:18px;line-height:22px;font-weight:700}
+  .link{background:none;border:0;color:var(--accent-text);font-weight:600;font-size:15px;padding:0}
 
-  .today-track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding:0 6%}
+  .today-track{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-left:16px;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding-left:16px}
   .today-track::-webkit-scrollbar{display:none}
-  .today-page{flex:0 0 88%;scroll-snap-align:center;padding:0 8px;box-sizing:border-box}
-  .today-label{font-size:19px;font-weight:700;padding:14px 0 0}
-  .today-label span{color:var(--muted);font-size:14px;font-weight:500;margin-left:6px}
-  .dots{display:flex;justify-content:center;gap:6px;padding-top:10px}
-  .dots i{width:6px;height:6px;border-radius:50%;background:var(--line)}
-  .dots i.on{background:var(--accent)}
-  .today{margin:12px 0 0;display:grid;grid-template-columns:repeat(3,1fr);background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 8px;text-align:center}
-  .today .tl{color:var(--muted);font-size:13px}
-  .today .tv{font-weight:700;font-size:19px;margin-top:8px;font-variant-numeric:tabular-nums}
+  .today-track::after{content:"";flex:0 0 8px}
+  .today-page{flex:0 0 calc(100% - 16px);scroll-snap-align:start}
+  .today-label{font-size:18px;line-height:22px;font-weight:700;padding-top:17px}
+  .today{margin-top:11px;display:flex;justify-content:space-between;border:1px solid var(--line);border-radius:12px;padding:13px 31px;text-align:center}
+  .today .tl{color:var(--label);font-size:14px;line-height:17px}
+  .today .tv{font-weight:600;font-size:21px;line-height:25px;margin-top:11px;font-variant-numeric:tabular-nums}
 
-  .ranges{display:flex;gap:6px;overflow-x:auto;padding:4px 16px 12px;scrollbar-width:none}
+  .ranges{display:flex;justify-content:space-between;padding:15px 8px 8px;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:3;background:var(--bg);overflow-x:auto;scrollbar-width:none}
   .ranges[hidden]{display:none}
   .ranges::-webkit-scrollbar{display:none}
-  .ranges button{flex:0 0 auto;border:0;background:none;color:var(--muted);font-weight:600;font-size:14px;padding:8px 12px;border-radius:20px}
+  .ranges button{flex:0 0 auto;border:0;background:none;color:var(--muted);font-weight:500;font-size:12px;height:32px;line-height:32px;padding:0 13px;border-radius:16px}
   .ranges button.on{background:var(--accent);color:#fff}
 
-  .metric{position:relative;padding:18px 16px 14px;border-bottom:1px solid var(--line)}
+  .metric{position:relative;padding:18px 16px 22px;border-bottom:1px solid var(--line)}
   .metric.off{opacity:.45}
-  .mhead{display:flex;justify-content:space-between;align-items:center;gap:8px}
-  .mtitle{font-size:18px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .badge{border:1px solid var(--line);border-radius:6px;padding:3px 7px;font-size:12px;color:var(--muted);flex:0 0 auto}
-  .cmp{display:flex;justify-content:space-between;align-items:flex-start;margin-top:12px}
+  .mhead{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+  .mtitle{font-size:17px;line-height:21px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .badge{border:1px solid var(--line);background:var(--card);border-radius:5px;height:19px;line-height:17px;padding:0 7px;font-size:12px;color:var(--muted);flex:0 0 auto}
+  .cmp{display:flex;justify-content:space-between;align-items:flex-start;margin-top:4px}
   .cmp .right{text-align:right}
-  .cv{font-size:20px;font-weight:600;color:var(--muted);font-variant-numeric:tabular-nums}
+  .cv{font-size:19px;line-height:23px;font-weight:600;color:var(--muted);font-variant-numeric:tabular-nums}
   .cv.cur{color:var(--accent-text);font-weight:700}
-  .cd{font-size:13px;color:var(--dim);margin-top:4px}
+  .cd{font-size:12px;line-height:15px;color:var(--muted);margin-top:3px}
   .bignum{display:block;background:none;border:0;padding:6px 0 0;font-size:34px;font-weight:700;font-variant-numeric:tabular-nums;text-align:left;letter-spacing:-.5px;color:var(--text)}
   .bignum:active{transform:scale(.98)}
   .editbar{display:flex;gap:6px;justify-content:flex-end;margin-bottom:8px}
@@ -75,12 +72,12 @@
   .wrow .bignum{flex:1;min-width:0}
   .mini.wide{width:auto;height:34px;padding:0 12px;font-size:14px;font-weight:600;color:var(--accent)}
 
-  .chart{position:relative;height:150px;margin-top:16px;touch-action:pan-y;user-select:none;-webkit-user-select:none;cursor:crosshair}
+  .chart{position:relative;height:100px;margin:24px 4px 0 2px;touch-action:pan-y;user-select:none;-webkit-user-select:none;cursor:crosshair}
   .chart svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
   .chart .grid line{stroke:var(--grid);stroke-width:1;vector-effect:non-scaling-stroke}
   .chart .shape{fill:none;stroke:var(--accent);stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round;vector-effect:non-scaling-stroke}
   .chart .bars rect{fill:var(--accent);opacity:.85}
-  .pill{position:absolute;transform:translateY(-50%);background:var(--accent);color:#fff;font-size:12px;font-weight:600;padding:3px 7px;border-radius:5px;white-space:nowrap;pointer-events:none}
+  .pill{position:absolute;transform:translate(-2px,calc(-100% - 1px));background:var(--accent);color:#fff;font-size:11px;font-weight:600;height:17px;line-height:17px;padding:0 5px;border-radius:4px;white-space:nowrap;pointer-events:none}
   .dot-end{position:absolute;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:var(--accent);pointer-events:none}
   .cur-line{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--accent);display:none;pointer-events:none}
   .dot{position:absolute;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:var(--card);border:3px solid var(--accent);display:none;pointer-events:none}
@@ -88,8 +85,8 @@
   .tip b{font-size:15px;font-variant-numeric:tabular-nums}
   .tip span{opacity:.7;font-size:11px}
 
-  .tabbar{flex:0 0 auto;display:flex;justify-content:space-around;border-top:1px solid var(--line);background:var(--bg);padding:8px 4px max(22px,env(safe-area-inset-bottom))}
-  .tabbar button{flex:1;background:none;border:0;color:var(--tab-text);display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11.5px;font-weight:500}
+  .tabbar{flex:0 0 auto;display:flex;justify-content:space-around;border-top:1px solid var(--line);background:var(--bg);padding:8px 0 max(calc(env(safe-area-inset-bottom) + 2px),16px)}
+  .tabbar button{flex:1;background:none;border:0;padding:0;color:var(--tab-text);display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;line-height:12px;font-weight:500}
   .tabbar button.on{color:var(--accent)}
   .tabbar svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 
@@ -158,14 +155,13 @@
     <div class="title" id="topTitle">Margin Drive</div>
     <button class="fab" data-act="openCreate" aria-label="Create">+</button>
   </header>
-  <nav class="ranges" id="ranges"></nav>
   </div>
 
   <main id="screens">
     <section class="screen on" data-screen="home">
       <div class="today-track" id="today"></div>
-      <div class="dots" id="todayDots"></div>
       <div class="sec-row"><h2>Reports overview</h2><button class="link" data-act="toggleEdit" id="editBtn">Edit</button></div>
+      <nav class="ranges" id="ranges"></nav>
       <div id="reports"></div>
     </section>
     <section class="screen" data-screen="payments">
@@ -480,11 +476,11 @@ function smoothPath(p){
   return d;
 }
 function chartHTML(vals,labels,a,fmt){
-  const id=CHARTS.length,n=vals.length,W=400,H=150,top=14,bot=136;
+  const id=CHARTS.length,n=vals.length,W=400,H=150,top=18,bot=132;
   const lo=Math.min(0,...vals),hi0=Math.max(...vals),hi=hi0===lo?lo+1:hi0;
   const pts=vals.map((v,i)=>{
     const xp=n===1?50:i/(n-1)*100;
-    const y=bot-(v-lo)/(hi-lo)*(bot-top);
+    const y=hi0===lo?H*0.49:bot-(v-lo)/(hi-lo)*(bot-top);
     return {xp,yp:y/H*100,x:xp/100*W,y};
   });
   CHARTS.push({vals,labels,fmt,pts,n});
@@ -498,7 +494,7 @@ function chartHTML(vals,labels,a,fmt){
     if(type==='area') shape+=`<path d="${line} L${pts[n-1].x.toFixed(1)},${bot} L${pts[0].x.toFixed(1)},${bot} Z" fill="url(#g${id})"/>`;
     shape+=`<path class="shape" d="${line}"/>`;
   }
-  const grid=[1,2,3,4,5].map(i=>`<line x1="${W*i/6}" x2="${W*i/6}" y1="0" y2="${H}"/>`).join('')+`<line x1="0" x2="${W}" y1="${bot}" y2="${bot}"/>`;
+  const grid=[0,1,2,3,4,5,6].map(i=>`<line x1="${W*i/6}" x2="${W*i/6}" y1="0" y2="${H}"/>`).join('')+`<line x1="0" x2="${W}" y1="${H}" y2="${H}"/>`;
   const first=pts[0],last=pts[n-1];
   const pill=a.chart.startLabel?`<div class="pill" style="left:${first.xp}%;top:${first.yp}%">${esc(fmt(vals[0]))}</div>`:'';
   const end=type==='bar'?'':`<div class="dot-end" style="left:${last.xp}%;top:${last.yp}%"></div>`;
@@ -551,15 +547,13 @@ function renderHome(a){
   const pages=[1,0].map(off=>{
     const d=addDays(todayDate,-off),t=dayTotals(a,d);
     const name=off?'Yesterday':'Today';
-    const date=d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
     const tiles=a.home.today.map(id=>`<div><div class="tl">${METRICS[id].short}</div><div class="tv"${off?'':` data-edit="metric|${id}|today"`}>${fmtVal(id,METRICS[id].f([t]),a)}</div></div>`).join('');
-    return `<div class="today-page"><div class="today-label">${name}<span>${date}</span></div><div class="today">${tiles}</div></div>`;
+    return `<div class="today-page"><div class="today-label">${name}</div><div class="today">${tiles}</div></div>`;
   }).join('');
   const track=$('#today'),first=!track.dataset.ready,keep=track.scrollLeft;
   track.innerHTML=pages;
   track.dataset.ready='1';
   if(first) centerPage(track,track.children[1]); else track.scrollLeft=keep;
-  $('#todayDots').innerHTML=[0,1].map(i=>`<i class="${i===activeTodayIndex(track)?'on':''}"></i>`).join('');
   const keys=a.home.custom?[...RANGES,'CUSTOM']:RANGES;
   $('#ranges').innerHTML=keys.map(r=>`<button class="${r===a.home.range?'on':''}" data-act="range" data-v="${r}">${r==='CUSTOM'?shortRange(a):r}</button>`).join('');
   const win=windowFor(a.home.range,a);
@@ -1142,23 +1136,10 @@ document.addEventListener('pointerup',endScrub);
 document.addEventListener('pointercancel',endScrub);
 
 /* ---------- Today/Yesterday swipe dots and midnight rollover ---------- */
-function activeTodayIndex(t){
-  const mid=t.getBoundingClientRect().left+t.clientWidth/2;
-  let best=0,dist=Infinity;
-  [...t.children].forEach((p,i)=>{
-    const c=p.getBoundingClientRect(),d=Math.abs(c.left+c.width/2-mid);
-    if(d<dist){dist=d;best=i;}
-  });
-  return best;
-}
 function centerPage(t,page){
   const off=page.getBoundingClientRect().left-t.getBoundingClientRect().left+t.scrollLeft;
   t.scrollLeft=off-(t.clientWidth-page.offsetWidth)/2;
 }
-$('#today').addEventListener('scroll',()=>{
-  const t=$('#today'),i=activeTodayIndex(t);
-  document.querySelectorAll('#todayDots i').forEach((d,n)=>d.classList.toggle('on',n===i));
-},{passive:true});
 function scheduleMidnight(){
   const now=new Date(),next=addDays(startOfDay(now),1);
   setTimeout(()=>{renderAll();scheduleMidnight();},next-now+1000);
