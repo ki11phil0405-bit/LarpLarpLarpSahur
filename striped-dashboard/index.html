@@ -280,9 +280,15 @@ function newAccount(name,tier){
   return a;
 }
 function parseBrief(text){
-  const t=text.toLowerCase().replace(/,/g,'');
+  let t=text.toLowerCase().replace(/,/g,'');
   const unit={day:1,week:7,month:30};
-  const p={ticket:[40,80],prices:null,daily:[4,10],random:/random/.test(t),dropsPerMonth:0,dropMult:2};
+  const p={ticket:[40,80],prices:null,daily:[4,10],random:/random/.test(t),dropsPerMonth:0,dropMult:2,allTimeSales:null};
+  const all=t.match(/\$?\s?(\d+(?:\.\d+)?)\s*(m|mil|million|k|thousand)?\s*(?:in\s*)?(?:all[- ]?time|lifetime|total)\s*sales?/);
+  if(all){
+    const mult={m:1e6,mil:1e6,million:1e6,k:1e3,thousand:1e3}[all[2]]||1;
+    p.allTimeSales=Math.round(+all[1]*mult);
+    t=t.replace(all[0],' ');
+  }
   const prices=[...new Set([...t.matchAll(/\$\s?(\d+(?:\.\d+)?)/g)].map(m=>+m[1]))].sort((x,y)=>x-y);
   const min=t.match(/min(?:imum)?\s*(?:price)?\s*(?:is|of|:)?\s*\$?\s?(\d+(?:\.\d+)?)/);
   if(prices.length>1) p.prices=prices;
@@ -316,7 +322,23 @@ function summarize(p){
   const price=p.prices?p.prices.map(v=>'$'+v).join(' / '):`$${Math.round(p.ticket[0])}–$${Math.round(p.ticket[1])}`;
   const rate=`${r1(p.daily[0]*7)}–${r1(p.daily[1]*7)} sales a week`;
   const drops=p.dropsPerMonth?`${p.dropsPerMonth} drop${p.dropsPerMonth>1?'s':''} a month, ${p.dropMult}x sales for 2 days`:'no drops';
-  return `Price ${price} · ${rate} · ${drops}${p.random?' · random':''}`;
+  const total=p.allTimeSales?` · $${p.allTimeSales.toLocaleString('en-US')} all-time sales`:'';
+  return `Price ${price} · ${rate} · ${drops}${p.random?' · random':''}${total}`;
+}
+function customerDensity(a){
+  const p=a.brief&&a.brief.profile;
+  const T=TIERS[a.business.tier]||TIERS.low;
+  const total=p&&p.allTimeSales?p.allTimeSales:sum(a.history.map(r=>derive(r,a)),'gross');
+  const prices=p&&p.prices?p.prices:null;
+  const lo=prices?prices[0]:(p?p.ticket[0]:T.ticket[0]);
+  const hi=prices?prices[prices.length-1]:(p?p.ticket[1]:T.ticket[1]);
+  const mid=prices?prices[Math.floor(prices.length/2)]:(lo+hi)/2;
+  return {
+    total:round2(total),
+    min:Math.round(total/hi),
+    med:Math.round(total/mid),
+    max:Math.round(total/lo),
+  };
 }
 function genData(a){
   const p=a.brief&&a.brief.profile;
@@ -344,6 +366,10 @@ function genData(a){
       if(Math.random()<0.07) row.refunds=round2(row.gross*rnd(0.02,0.12));
     }
     history.push(row);
+  }
+  if(p&&p.allTimeSales){
+    const total=sum(history,'gross');
+    if(total>0) history.forEach(r=>{r.gross=round2(r.gross*p.allTimeSales/total);});
   }
   a.history=history;
   a.txns=Array.from({length:40},()=>({
@@ -532,6 +558,14 @@ function renderSearch(){
   $('#searchList').innerHTML=list.length?list.map(t=>txnRow(t,a)).join(''):'<div class="empty">No matches</div>';
 }
 function renderCustomers(a){
+  const dn=customerDensity(a),n=v=>v.toLocaleString('en-US');
+  const density=`<div class="sec-row"><h2>Estimated customers</h2></div>
+    <div class="list">
+      <div class="li"><span>Fewest (top price)</span><b>${n(dn.min)}</b></div>
+      <div class="li"><span>Typical (middle price)</span><b>${n(dn.med)}</b></div>
+      <div class="li"><span>Most (lowest price)</span><b>${n(dn.max)}</b></div>
+    </div>
+    <div class="hint">All-time sales of ${fmtMoney(dn.total,a)} divided by each price point.</div>`;
   const by={};
   a.txns.filter(t=>t.kind==='payment').forEach(t=>{
     const c=by[t.customer]||(by[t.customer]={name:t.customer,count:0,total:0});
@@ -540,7 +574,7 @@ function renderCustomers(a){
   const top=Object.values(by).sort((x,y)=>y.total-x.total).slice(0,25);
   const win=windowFor(a.home.range,a);
   const fresh=METRICS.customers.f(rowsBetween(a,win.start,win.end));
-  $('#custList').innerHTML=`<div class="sec-row"><h2>Customers</h2></div>
+  $('#custList').innerHTML=`${density}<div class="sec-row"><h2>Customers</h2></div>
     <div class="list"><div class="li"><span>New customers · ${a.home.range}</span><b>${fmtCount(fresh,a)}</b></div></div>
     <div class="sec-row"><h2>Top customers</h2></div>
     <div class="list">${top.length?top.map(c=>`<div class="txn"><div class="av">${esc(initials(c.name))}</div><div class="tm"><div class="tn">${esc(c.name)}</div><div class="ts">${c.count} payment${c.count===1?'':'s'}</div></div><div class="ta">${fmtMoney(c.total,a)}</div></div>`).join(''):'<div class="empty">No customers yet</div>'}</div>`;
