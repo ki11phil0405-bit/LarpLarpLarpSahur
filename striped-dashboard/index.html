@@ -526,9 +526,16 @@ function windowFor(key,a){
   const len=Math.round((end-start)/DAY)+1;
   return {key,start,end,len,pStart:addDays(start,-len),pEnd:addDays(start,-1)};
 }
+// Chart points count back from the end of the range (today), so the last point is always a
+// full day, week or month ending today. A partial block left over at the oldest end is dropped
+// from the chart only; totals still cover the whole range.
 function bucketsFor(win){
   const size=win.len<=62?1:win.len<=200?7:30,out=[];
-  for(let s=0;s<win.len;s+=size) out.push({s:addDays(win.start,s),e:addDays(win.start,Math.min(s+size,win.len)-1)});
+  for(let e=win.len-1;e>=0;e-=size){
+    const st=e-size+1;
+    if(st<0&&out.length) break;
+    out.unshift({s:addDays(win.start,Math.max(0,st)),e:addDays(win.start,e)});
+  }
   return out;
 }
 
