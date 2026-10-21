@@ -37,9 +37,9 @@
   .sec-row h2{margin:0;font-size:19px;font-weight:700}
   .link{background:none;border:0;color:var(--accent);font-weight:600;font-size:16px;padding:4px 0}
 
-  .today-track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .today-track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding:0 6%}
   .today-track::-webkit-scrollbar{display:none}
-  .today-page{flex:0 0 100%;scroll-snap-align:start;padding:0 16px;box-sizing:border-box}
+  .today-page{flex:0 0 88%;scroll-snap-align:center;padding:0 8px;box-sizing:border-box}
   .today-label{font-size:19px;font-weight:700;padding:14px 0 0}
   .today-label span{color:var(--muted);font-size:14px;font-weight:500;margin-left:6px}
   .dots{display:flex;justify-content:center;gap:6px;padding-top:10px}
@@ -548,17 +548,18 @@ function editBar(i,on){
 function renderHome(a){
   CHARTS.length=0;
   const todayDate=startOfDay(new Date());
-  const pages=[0,1].map(off=>{
+  const pages=[1,0].map(off=>{
     const d=addDays(todayDate,-off),t=dayTotals(a,d);
     const name=off?'Yesterday':'Today';
     const date=d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
     const tiles=a.home.today.map(id=>`<div><div class="tl">${METRICS[id].short}</div><div class="tv"${off?'':` data-edit="metric|${id}|today"`}>${fmtVal(id,METRICS[id].f([t]),a)}</div></div>`).join('');
     return `<div class="today-page"><div class="today-label">${name}<span>${date}</span></div><div class="today">${tiles}</div></div>`;
   }).join('');
-  const track=$('#today'),keep=track.scrollLeft;
+  const track=$('#today'),first=!track.dataset.ready,keep=track.scrollLeft;
   track.innerHTML=pages;
-  track.scrollLeft=keep;
-  $('#todayDots').innerHTML=[0,1].map(i=>`<i class="${i===Math.round(keep/(track.clientWidth||1))?'on':''}"></i>`).join('');
+  track.dataset.ready='1';
+  if(first) centerPage(track,track.children[1]); else track.scrollLeft=keep;
+  $('#todayDots').innerHTML=[0,1].map(i=>`<i class="${i===activeTodayIndex(track)?'on':''}"></i>`).join('');
   const keys=a.home.custom?[...RANGES,'CUSTOM']:RANGES;
   $('#ranges').innerHTML=keys.map(r=>`<button class="${r===a.home.range?'on':''}" data-act="range" data-v="${r}">${r==='CUSTOM'?shortRange(a):r}</button>`).join('');
   const win=windowFor(a.home.range,a);
@@ -1141,8 +1142,21 @@ document.addEventListener('pointerup',endScrub);
 document.addEventListener('pointercancel',endScrub);
 
 /* ---------- Today/Yesterday swipe dots and midnight rollover ---------- */
+function activeTodayIndex(t){
+  const mid=t.getBoundingClientRect().left+t.clientWidth/2;
+  let best=0,dist=Infinity;
+  [...t.children].forEach((p,i)=>{
+    const c=p.getBoundingClientRect(),d=Math.abs(c.left+c.width/2-mid);
+    if(d<dist){dist=d;best=i;}
+  });
+  return best;
+}
+function centerPage(t,page){
+  const off=page.getBoundingClientRect().left-t.getBoundingClientRect().left+t.scrollLeft;
+  t.scrollLeft=off-(t.clientWidth-page.offsetWidth)/2;
+}
 $('#today').addEventListener('scroll',()=>{
-  const t=$('#today'),i=Math.round(t.scrollLeft/(t.clientWidth||1));
+  const t=$('#today'),i=activeTodayIndex(t);
   document.querySelectorAll('#todayDots i').forEach((d,n)=>d.classList.toggle('on',n===i));
 },{passive:true});
 function scheduleMidnight(){
