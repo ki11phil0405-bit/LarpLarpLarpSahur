@@ -415,7 +415,7 @@ const ruleOf=(a,kind)=>a.notifications.rules.find(r=>r.kind===kind)||{on:false};
 
 function windowFor(key,a){
   const today=startOfDay(new Date());
-  let start;
+  let start,end=today;
   switch(key){
     case '1W': start=addDays(today,-6);break;
     case '4W': start=addDays(today,-27);break;
@@ -423,10 +423,13 @@ function windowFor(key,a){
     case 'MTD': start=new Date(today.getFullYear(),today.getMonth(),1);break;
     case 'QTD': start=new Date(today.getFullYear(),Math.floor(today.getMonth()/3)*3,1);break;
     case 'YTD': start=new Date(today.getFullYear(),0,1);break;
+    case 'CUSTOM':
+      if(a.home.custom){ start=parseDay(a.home.custom.start); end=parseDay(a.home.custom.end); break; }
+      start=addDays(today,-6);break;
     default: start=a.history.length?parseDay(a.history[0].d):today;
   }
-  const len=Math.round((today-start)/DAY)+1;
-  return {key,start,end:today,len,pStart:addDays(start,-len),pEnd:addDays(start,-1)};
+  const len=Math.round((end-start)/DAY)+1;
+  return {key,start,end,len,pStart:addDays(start,-len),pEnd:addDays(start,-1)};
 }
 function bucketsFor(win){
   const size=win.len<=62?1:win.len<=200?7:30,out=[];
@@ -511,7 +514,8 @@ function renderHome(a){
   CHARTS.length=0;
   const today=startOfDay(new Date()),t=dayTotals(a,today);
   $('#today').innerHTML=a.home.today.map(id=>`<div><div class="tl">${METRICS[id].short}</div><div class="tv" data-edit="metric|${id}|today">${fmtVal(id,METRICS[id].f([t]),a)}</div></div>`).join('');
-  $('#ranges').innerHTML=RANGES.map(r=>`<button class="${r===a.home.range?'on':''}" data-act="range" data-v="${r}">${r}</button>`).join('');
+  const keys=a.home.custom?[...RANGES,'CUSTOM']:RANGES;
+  $('#ranges').innerHTML=keys.map(r=>`<button class="${r===a.home.range?'on':''}" data-act="range" data-v="${r}">${r==='CUSTOM'?'Custom':r}</button>`).join('');
   const win=windowFor(a.home.range,a);
   $('#reports').innerHTML=a.home.layout.map((it,i)=>{
     if(!it.on&&!UI.editing) return '';
@@ -530,7 +534,7 @@ function metricCard(a,id,win,i,on){
     <div class="mhead"><div class="mtitle">${m.label}</div><span class="badge">${Math.round(pct)}%</span></div>
     <div class="cmp">
       <div><div class="cv">${fmtVal(id,prev,a)}</div><div class="cd">${fmtSpan(win.pStart,win.pEnd)}</div></div>
-      <div class="right"><div class="cv cur" data-edit="metric|${id}|${win.key}">${fmtVal(id,cur,a)}</div><div class="cd">${fmtSpan(win.start,null)}</div></div>
+      <div class="right"><div class="cv cur" data-edit="metric|${id}|${win.key}">${fmtVal(id,cur,a)}</div><div class="cd" data-edit="dates|${win.key}">${fmtSpan(win.start,win.end.getTime()===startOfDay(new Date()).getTime()?null:win.end)}</div></div>
     </div>
     ${chartHTML(vals,bs.map(spanLabel),a,v=>fmtVal(id,v,a))}
   </section>`;
@@ -939,6 +943,7 @@ function tripleTap(el){
 }
 function openEdit(key){
   const a=A(),[kind,id,range]=key.split('|');
+  if(kind==='dates'){ openDates(a); return; }
   let current,label;
   if(kind==='widget'){
     const w=a.widgets.find(x=>x.id===id);if(!w) return;
@@ -953,6 +958,17 @@ function openEdit(key){
     <input name="newValue" type="number" inputmode="decimal" step="${digits?'0.01':'1'}" min="0" value="${Number(current).toFixed(digits)}" required>
     <div class="hint">Changes spread across the days in this range, so every screen that shows this number updates too.</div>
     <button class="btn" type="submit">Save</button>
+  </form>`);
+}
+function openDates(a){
+  const w=windowFor(a.home.range,a);
+  openSheet('Custom dates',`<form class="sform" data-form="dates">
+    <div class="hint">From</div>
+    <input name="startDate" type="date" value="${dayKey(w.start)}" required>
+    <div class="hint">To</div>
+    <input name="endDate" type="date" value="${dayKey(w.end)}" required>
+    <div class="hint">Every report and total uses these days. The previous period is the same length just before.</div>
+    <button class="btn" type="submit">Use these dates</button>
   </form>`);
 }
 function applyEdit(a,ds,v){
@@ -1033,6 +1049,15 @@ document.addEventListener('submit',e=>{
     if(!Number.isFinite(v)||v<0) return;
     applyEdit(A(),{...f.dataset},v);
     closeSheet();renderAll();
+    return;
+  }
+  if(f.dataset.form==='dates'){
+    const st=f.startDate.value,en=f.endDate.value;
+    if(!st||!en||st>en) return;
+    const a=A();
+    a.home.custom={start:st,end:en};
+    a.home.range='CUSTOM';
+    save();closeSheet();renderAll();
     return;
   }
   const amount=round2(parseFloat(f.amount.value));
