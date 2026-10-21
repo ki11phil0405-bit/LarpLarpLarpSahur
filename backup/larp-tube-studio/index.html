@@ -1,0 +1,751 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0f0f0f">
+<title>Studio Sim</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Condensed:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f0f;
+    --card: #212121;
+    --grid: #373737;
+    --muted: #aaaaaa;
+    --dim: #717171;
+    --line: #00a7cf;
+    --border: #272727;
+    --inner: #373737;
+    --sep: #4d4d4d;
+    --red: #ff0033;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; background: var(--bg); color: #fff; }
+  body {
+    font-family: Roboto, -apple-system, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overscroll-behavior: none;
+  }
+  #app {
+    position: relative;
+    width: 100%;
+    max-width: 440px;
+    min-height: 100vh;
+    min-height: 100dvh;
+    margin: 0 auto;
+    background: var(--bg);
+    overflow: hidden;
+  }
+  @media (min-width: 520px) {
+    body { padding: 24px 0; background: #000; }
+    #app { min-height: 956px; height: 956px; border-radius: 44px; box-shadow: 0 0 0 10px #1c1c1c, 0 20px 60px rgba(0,0,0,.6); }
+  }
+
+  /* ---------- status bar ---------- */
+  .status {
+    height: 57px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 0 0 54px;
+    font-family: -apple-system, "SF Pro Text", "Helvetica Neue", Inter, sans-serif;
+  }
+  .status .time { font-weight: 600; font-size: 18px; letter-spacing: -.2px; display: flex; align-items: center; gap: 3px; padding-top: 1px; }
+  .status .right { display: flex; align-items: center; gap: 7px; padding-right: 49px; }
+  .status .net { font-weight: 600; font-size: 15px; display: flex; align-items: center; letter-spacing: -.3px; }
+  .status .net small { display: inline-flex; flex-direction: column; font-size: 7.5px; line-height: 7px; margin-left: 1px; font-weight: 700; }
+  .battery { display: flex; align-items: center; }
+  .battery .body { min-width: 27px; height: 13.5px; border-radius: 4.3px; background: #fff; color: #000; font-size: 11.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; letter-spacing: -.3px; padding: 0 2px; position: relative; overflow: hidden; }
+  .battery .body.low { background: #5a5a5a; }
+  .battery .fill { position: absolute; left: 0; top: 0; bottom: 0; background: #fff; }
+  .battery .body span:not(.fill) { position: relative; }
+  .battery .cap { width: 1.5px; height: 4.5px; background: #5a5a5a; border-radius: 0 1px 1px 0; margin-left: 1px; }
+  body.standalone .status { display: none; }
+  body.standalone #app { padding-top: env(safe-area-inset-top); }
+
+  /* ---------- header ---------- */
+  .header { height: 56px; display: flex; align-items: center; padding: 0 16px; }
+  .logo { display: flex; align-items: center; gap: 2px; cursor: pointer; user-select: none; }
+  .logo .yt { width: 29px; height: 20px; border-radius: 5.5px; background: var(--red); display: flex; align-items: center; justify-content: center; }
+  .logo .word { font-family: "Roboto Condensed", Roboto, sans-serif; font-weight: 600; font-size: 25px; letter-spacing: -1px; transform: scaleX(.92); transform-origin: left; margin-left: 2px; }
+  .header .icons { margin-left: auto; display: flex; align-items: center; gap: 23px; }
+  .header .icons svg { display: block; }
+  .header .av { width: 25px; height: 25px; border-radius: 50%; object-fit: cover; margin-left: 2px; }
+
+  /* ---------- screens ---------- */
+  .screen { display: none; padding-bottom: 100px; }
+  .screen.active { display: block; }
+
+  /* dashboard */
+  .dash-top { display: flex; align-items: center; padding: 13px 16px 0; gap: 16px; }
+  .dash-top img { width: 76px; height: 76px; border-radius: 50%; object-fit: cover; }
+  .dash-top .name { font-weight: 700; font-size: 19px; letter-spacing: -.1px; }
+  .dash-top .total { font-weight: 700; font-size: 26px; margin-top: 7px; line-height: 1; }
+  .dash-top .tlabel { color: var(--muted); font-size: 14.5px; margin-top: 8px; }
+  .dash-head { display: flex; align-items: baseline; justify-content: space-between; padding: 0 16px; margin-top: 33px; }
+  .dash-head h2 { margin: 0; font-size: 19px; font-weight: 700; }
+  .dash-head span { color: var(--muted); font-size: 13px; }
+  .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; padding: 13px 16px 0; }
+  .tile { background: var(--card); border-radius: 12px; height: 75px; padding: 16px 16px 0; }
+  .tile .l { color: var(--muted); font-size: 13px; }
+  .tile .v { font-weight: 700; font-size: 18.5px; margin-top: 11px; }
+
+  /* analytics tabs */
+  .tabs { display: flex; gap: 25px; padding: 0 16px; border-bottom: 1px solid var(--border); height: 46px; align-items: stretch; overflow-x: auto; scrollbar-width: none; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab { color: var(--muted); font-size: 17px; font-weight: 500; display: flex; align-items: center; position: relative; cursor: pointer; white-space: nowrap; padding-bottom: 2px; }
+  .tab.active { color: #fff; }
+  .tab.active::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2.5px; background: #fff; border-radius: 2px; }
+
+  .carousel { display: flex; gap: 9px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 18px 16px 0; scroll-padding: 0 16px; scrollbar-width: none; }
+  .carousel::-webkit-scrollbar { display: none; }
+  .mcard { flex: 0 0 70.7%; scroll-snap-align: center; background: var(--card); border-radius: 14px; height: 248px; position: relative; overflow: hidden; }
+  .mcard:first-child { scroll-snap-align: start; }
+  .mcard:last-child { scroll-snap-align: end; }
+  .mcard .l { position: absolute; left: 16px; top: 15px; color: var(--muted); font-size: 14.5px; font-weight: 500; white-space: nowrap; }
+  .mcard .v { position: absolute; left: 16px; top: 39px; font-size: 25px; font-weight: 700; display: flex; align-items: center; gap: 6px; cursor: pointer; }
+  .mcard .pct { position: absolute; left: 16px; top: 72px; color: var(--dim); font-size: 13px; white-space: nowrap; }
+  .mcard svg.chart { position: absolute; left: 0; top: 0; }
+  .arrow { width: 17px; height: 17px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: #909090; }
+  .arrow.up { background: #2ba640; }
+  .dots { display: flex; justify-content: center; gap: 8.5px; margin-top: 16px; }
+  .dots i { width: 7.5px; height: 7.5px; border-radius: 50%; background: #3f3f3f; }
+  .dots i.on { background: #f1f1f1; }
+
+  .card { background: var(--card); border-radius: 14px; margin: 16px 16px 0; padding: 16px 16px 16px; }
+  .card h3 { margin: 0; font-size: 17.5px; font-weight: 700; letter-spacing: -.1px; }
+  .card .sub { color: var(--muted); font-size: 14px; margin-top: 7px; }
+  .empty { background: var(--inner); border-radius: 4px; height: 55px; display: flex; align-items: center; gap: 10px; padding-left: 21px; color: var(--muted); font-size: 14px; margin-top: 16px; }
+  .top-list { margin-top: 12px; }
+  .vid { display: flex; align-items: center; gap: 12px; padding: 7px 0; cursor: pointer; }
+  .vid .thumb { width: 88px; height: 50px; border-radius: 6px; background: #3a3a3a center/cover no-repeat; flex: none; }
+  .vid .t { flex: 1; font-size: 14px; line-height: 1.3; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .vid .n { font-size: 14px; color: #fff; flex: none; }
+
+  .rt-row { display: flex; align-items: flex-end; justify-content: space-between; }
+  .rt-val { font-size: 25px; font-weight: 700; margin-top: 21px; cursor: pointer; display: inline-block; }
+  .rt-sub { color: var(--muted); font-size: 14px; margin-top: 9px; }
+  .rt-spark { width: 144px; height: 34px; margin-bottom: 4px; }
+  .rt-div { height: 1px; background: var(--sep); margin: 18px 0 0; }
+  .rt-empty { color: var(--muted); font-size: 14px; padding: 21px 0 9px; }
+  .rt-live { color: var(--muted); font-size: 12px; display: flex; align-items: center; gap: 6px; margin-top: 10px; }
+  .rt-live::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #2ba640; }
+
+  .placeholder { padding: 40px 16px; color: var(--muted); font-size: 14px; text-align: center; }
+
+  /* ---------- bottom nav ---------- */
+  .nav { position: fixed; left: 50%; transform: translateX(-50%); bottom: 0; width: 100%; max-width: 440px; background: var(--bg); border-top: 1px solid var(--border); display: flex; padding: 6px 0 calc(34px + env(safe-area-inset-bottom) * 0); height: 82px; z-index: 5; }
+  @media (min-width: 520px) { .nav { position: absolute; border-radius: 0 0 44px 44px; } }
+  .nav a { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 11.5px; color: #fff; letter-spacing: .1px; cursor: pointer; padding-top: 1px; }
+  .nav a svg { width: 23px; height: 23px; }
+
+  /* ---------- editor sheet ---------- */
+  .scrim { position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 20; display: none; }
+  .scrim.open { display: block; }
+  .sheet { position: fixed; left: 50%; bottom: 0; transform: translate(-50%, 105%); width: 100%; max-width: 440px; max-height: 86vh; overflow-y: auto; background: #282828; border-radius: 16px 16px 0 0; z-index: 21; transition: transform .22s ease; padding: 10px 18px calc(22px + env(safe-area-inset-bottom)); }
+  .sheet.open { transform: translate(-50%, 0); }
+  .sheet .grab { width: 36px; height: 4px; border-radius: 2px; background: #555; margin: 0 auto 12px; }
+  .sheet h4 { margin: 0 0 12px; font-size: 17px; font-weight: 700; }
+  .sheet h5 { margin: 18px 0 6px; font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; }
+  .field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 11px; }
+  .field label { font-size: 12.5px; color: var(--muted); }
+  .field input, .field select { background: #121212; color: #fff; border: 1px solid #3d3d3d; border-radius: 8px; padding: 10px 11px; font: inherit; font-size: 16px; width: 100%; }
+  .field input:focus, .field select:focus { outline: none; border-color: #3ea6ff; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .btns { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+  .btn { flex: 1; background: #3ea6ff; color: #0f0f0f; border: 0; border-radius: 20px; padding: 11px 14px; font: inherit; font-weight: 500; font-size: 14.5px; cursor: pointer; white-space: nowrap; }
+  .btn.ghost { background: #3a3a3a; color: #fff; }
+  .btn.danger { background: transparent; color: #ff6b6b; border: 1px solid #5a2a2a; }
+  .vid-edit { background: #1d1d1d; border-radius: 10px; padding: 10px; margin-bottom: 10px; }
+  .hint { position: fixed; left: 50%; bottom: 100px; transform: translateX(-50%); background: #f1f1f1; color: #0f0f0f; font-size: 13px; padding: 10px 14px; border-radius: 8px; z-index: 30; width: max-content; max-width: 90vw; text-align: center; transition: opacity .4s; }
+  .hint.hide { opacity: 0; pointer-events: none; }
+  [data-edit] { cursor: pointer; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="status" id="status"></div>
+
+  <div class="header">
+    <div class="logo" id="logo" title="Triple-tap for settings">
+      <div class="yt"><svg width="10" height="11" viewBox="0 0 10 11"><path d="M0 0 L10 5.5 L0 11 Z" fill="#fff"/></svg></div>
+      <div class="word">Studio</div>
+    </div>
+    <div class="icons">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6"><circle cx="12" cy="12" r="10.6"/><path d="M12 7v10M7 12h10" stroke-linecap="round"/></svg>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"><path d="M6 17V10.5a6 6 0 0 1 12 0V17l1.6 1.6H4.4L6 17Z"/><path d="M10 21a2.2 2.2 0 0 0 4 0" stroke-linecap="round"/></svg>
+      <img class="av" id="hdrAv" alt="" data-edit="avatar">
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <section class="screen" id="scr-dashboard">
+    <div class="dash-top">
+      <img id="dashAv" alt="" data-edit="avatar">
+      <div>
+        <div class="name" id="dashName" data-edit="channel"></div>
+        <div class="total" id="dashTotal" data-edit="channel"></div>
+        <div class="tlabel">Total subscribers</div>
+      </div>
+    </div>
+    <div class="dash-head"><h2>Channel analytics</h2><span>Last 28 days</span></div>
+    <div class="tiles">
+      <div class="tile" data-edit="views"><div class="l">Views</div><div class="v" id="tileViews"></div></div>
+      <div class="tile" data-edit="watch"><div class="l">Watch time (hours)</div><div class="v" id="tileWatch"></div></div>
+    </div>
+  </section>
+
+  <!-- Analytics -->
+  <section class="screen" id="scr-analytics">
+    <div class="tabs" id="tabs">
+      <div class="tab active" data-tab="overview">Overview</div>
+      <div class="tab" data-tab="content">Content</div>
+      <div class="tab" data-tab="audience">Audience</div>
+      <div class="tab" data-tab="trends">Trends</div>
+    </div>
+    <div id="overview">
+      <div class="carousel" id="carousel">
+        <div class="mcard" data-metric="views"></div>
+        <div class="mcard" data-metric="watch"></div>
+        <div class="mcard" data-metric="subs"></div>
+      </div>
+      <div class="dots" id="dots"><i class="on"></i><i></i><i></i></div>
+
+      <div class="card" id="topCard">
+        <h3>Top content</h3>
+        <div class="sub">Views · Last 28 days</div>
+        <div id="topBody"></div>
+      </div>
+
+      <div class="card" id="rtCard" style="padding-bottom:12px">
+        <h3>Realtime</h3>
+        <div class="rt-row">
+          <div>
+            <div class="rt-val" id="rtVal" data-edit="realtime"></div>
+            <div class="rt-sub">Views · 48 hours</div>
+          </div>
+          <svg class="rt-spark" id="rtSpark" data-edit="realtime"></svg>
+        </div>
+        <div class="rt-div"></div>
+        <div id="rtBody"></div>
+      </div>
+    </div>
+    <div id="otherTab" class="placeholder" style="display:none">Not enough data to show this report</div>
+  </section>
+
+  <nav class="nav" id="nav"></nav>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<div class="sheet" id="sheet"></div>
+<div class="hint hide" id="hint">Tap any number to edit it · Triple-tap “Studio” for all settings</div>
+
+<script>
+(() => {
+  const KEY = "studio-sim-v1";
+  const yesterday = () => { const d = new Date(); d.setDate(d.getDate() - 1); return d.toISOString().slice(0, 10); };
+
+  const DEFAULTS = {
+    name: "Philip Werner",
+    totalSubs: 558,
+    avatar: "assets/avatar.jpg",
+    endDate: "",           // blank = yesterday
+    format: "auto",        // auto | full
+    seed: 7,
+    metrics: {
+      views: { value: 0, pct: "",   shape: "auto" },
+      watch: { value: 0, pct: -100, shape: "auto" },
+      subs:  { value: 0, pct: "",   shape: "auto" },
+    },
+    realtime: { value: 0 },
+    topContent: [],
+    status: { time: "", battery: 86, signal: 3, network: "5G UW", silent: true, show: "auto" },
+    screen: "dashboard",
+  };
+
+  const clone = o => JSON.parse(JSON.stringify(o));
+  const merge = (base, over) => {
+    for (const k in over) {
+      if (over[k] && typeof over[k] === "object" && !Array.isArray(over[k]) && base[k] && typeof base[k] === "object") merge(base[k], over[k]);
+      else base[k] = over[k];
+    }
+    return base;
+  };
+  let S = clone(DEFAULTS);
+  try { const raw = localStorage.getItem(KEY); if (raw) S = merge(clone(DEFAULTS), JSON.parse(raw)); } catch (e) {}
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
+
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+  // ---------- number formatting ----------
+  const trim = s => s.replace(/\.0$/, "");
+  function fmt(n, decimals = 0) {
+    n = Number(n) || 0;
+    const neg = n < 0; const a = Math.abs(n);
+    let out;
+    if (S.format === "full" || a < 10000) {
+      out = a.toLocaleString("en-US", { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+    } else if (a < 1e6) {
+      out = a < 1e5 ? trim((Math.floor(a / 100) / 10).toFixed(1)) + "K" : Math.floor(a / 1000) + "K";
+    } else if (a < 1e9) {
+      out = trim((Math.floor(a / 1e5) / 10).toFixed(1)) + "M";
+    } else {
+      out = trim((Math.floor(a / 1e8) / 10).toFixed(1)) + "B";
+    }
+    return (neg ? "-" : "") + out;
+  }
+  function fmtTick(n, isWatch, allZero) {
+    if (n === 0) return isWatch && allZero ? "0.0" : "0";
+    if (n >= 1e6) return trim((n / 1e6).toFixed(1)) + "M";
+    if (n >= 1e3) return trim((n / 1e3).toFixed(1)) + "K";
+    if (isWatch && n < 10) return n.toFixed(1);
+    return String(Math.round(n * 10) / 10);
+  }
+  const fmtSubs = n => (S.format === "full" || Math.abs(n) < 100000) ? Number(n).toLocaleString("en-US") : fmt(n);
+
+  // ---------- dates ----------
+  const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  function range() {
+    const end = new Date((S.endDate || yesterday()) + "T12:00:00");
+    const start = new Date(end); start.setDate(start.getDate() - 27);
+    const f = d => MONTHS[d.getMonth()] + " " + d.getDate();
+    return [f(start), f(end)];
+  }
+
+  // ---------- data generation ----------
+  function rng(seed) {
+    let a = seed >>> 0;
+    return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  }
+  const SEEDS = { views: 11, watch: 23, subs: 37, rt: 51 };
+
+  function series(key) {
+    const m = S.metrics[key];
+    const total = Number(m.value) || 0;
+    const N = 28;
+    if (total === 0) return new Array(N).fill(0);
+    const r = rng(S.seed * 1000 + SEEDS[key]);
+    const pct = m.pct === "" || m.pct === null ? 0 : Number(m.pct);
+    const avg = Math.abs(total) / N;
+    let shape = m.shape;
+    if (shape === "auto") shape = pct >= 300 ? "spike" : "trend";
+
+    let base = [];
+    if (shape === "spike") {
+      // quiet before, sharp spike, long decay tail
+      const at = 8 + Math.floor(r() * 14);
+      for (let i = 0; i < N; i++) {
+        const before = 0.08 + r() * 0.06;
+        base.push(i < at ? before : Math.exp(-(i - at) / (3 + r() * 2)) + 0.12 + r() * 0.05);
+      }
+    } else if (shape === "flat") {
+      for (let i = 0; i < N; i++) base.push(1);
+    } else {
+      // linear trend from previous-period level to an end level that keeps the mean = current avg
+      const prev = Math.max(0.05, 1 / (1 + pct / 100));
+      let start = Math.min(1.9, prev);
+      let end = 2 - start;
+      end = Math.max(0.1, end);
+      for (let i = 0; i < N; i++) base.push(start + (end - start) * (i / (N - 1)));
+    }
+    // noise: random walk + weekly pattern + jitter
+    let walk = 0;
+    const weekPhase = r() * 7;
+    const vals = base.map((b, i) => {
+      walk = walk * 0.7 + (r() - 0.5) * 0.18;
+      const weekly = 1 + 0.08 * Math.sin((i + weekPhase) / 7 * Math.PI * 2);
+      const jitter = 1 + (r() - 0.5) * (shape === "flat" ? 0.35 : 0.22);
+      return Math.max(0.001, b * weekly * jitter * (1 + walk));
+    });
+    const sum = vals.reduce((a, b) => a + b, 0);
+    const sign = total < 0 ? -1 : 1;
+    const scaled = vals.map(v => v / sum * Math.abs(total));
+
+    if (key === "watch") return scaled.map(v => sign * v);
+    // integer metrics: largest remainder so the days add up exactly
+    const floors = scaled.map(Math.floor);
+    let rem = Math.round(Math.abs(total)) - floors.reduce((a, b) => a + b, 0);
+    scaled.map((v, i) => [v - Math.floor(v), i]).sort((a, b) => b[0] - a[0]).forEach(([, i]) => { if (rem > 0) { floors[i]++; rem--; } });
+    void avg;
+    return floors.map(v => sign * v);
+  }
+
+  function niceStep(raw) {
+    if (raw <= 0) return 1;
+    const p = Math.pow(10, Math.floor(Math.log10(raw)));
+    const f = raw / p;
+    const nf = f <= 1 ? 1 : f <= 1.5 ? 1.5 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 3 ? 3 : f <= 4 ? 4 : f <= 5 ? 5 : f <= 6 ? 6 : f <= 8 ? 8 : 10;
+    return nf * p;
+  }
+
+  // ---------- chart card rendering ----------
+  const LABELS = { views: "Views", watch: "Watch time (hours)", subs: "Subscribers" };
+  const measureCtx = document.createElement("canvas").getContext("2d");
+  const textW = (t, px) => { measureCtx.font = `400 ${px}px Roboto, sans-serif`; return measureCtx.measureText(t).width; };
+
+  function renderCard(el) {
+    const key = el.dataset.metric;
+    const m = S.metrics[key];
+    const isWatch = key === "watch";
+    const data = series(key);
+    const total = Number(m.value) || 0;
+    const shown = isWatch ? fmt(total, 1) : (key === "subs" && total > 0 ? "+" + fmt(total) : fmt(total));
+
+    let pctHtml = "", arrowHtml = "";
+    if (m.pct !== "" && m.pct !== null && !isNaN(Number(m.pct))) {
+      const p = Number(m.pct);
+      const up = p > 0;
+      const abs = Math.abs(p);
+      const pText = abs >= 1000 ? Math.round(abs).toLocaleString("en-US") : trim(abs.toFixed(abs < 10 && abs % 1 ? 1 : 0));
+      if (p === 0) {
+        pctHtml = `<div class="pct">About the same as previous 28 days</div>`;
+      } else {
+        pctHtml = `<div class="pct">${pText}% ${up ? "more" : "less"} than previous 28 days</div>`;
+        arrowHtml = `<span class="arrow ${up ? "up" : ""}"><svg width="11" height="11" viewBox="0 0 12 12"><path d="${up ? "M6 10V2.5M2.5 6 6 2.5 9.5 6" : "M6 2v7.5M2.5 6 6 9.5 9.5 6"}" stroke="#212121" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`;
+      }
+    }
+
+    // axis
+    const w = el.clientWidth || 311;
+    const h = 248;
+    const minV = Math.min(0, ...data);
+    const maxV = Math.max(...data);
+    let ticks;
+    if (maxV === 0 && minV === 0) {
+      ticks = isWatch ? [0, 0, 0, 0] : [0, 1, 2, 3];
+    } else if (minV < 0) {
+      const step = niceStep((maxV - minV) / 3);
+      const lo = Math.floor(minV / step) * step;
+      ticks = [lo, lo + step, lo + 2 * step, lo + 3 * step];
+      if (ticks[3] < maxV) ticks = ticks.map(t => t + step);
+    } else {
+      const step = niceStep(maxV / 3);
+      ticks = [0, step, 2 * step, 3 * step];
+    }
+    const labels = ticks.map(t => fmtTick(t, isWatch, maxV === 0 && minV === 0));
+    const fs = 11;
+    const labW = Math.max(...labels.map(l => textW(l, fs)));
+    const labX = 20;                       // left padding of axis labels
+    const x0 = Math.round(labX + labW + 13);
+    const x1 = w - 17;
+    const gy = [206, 175, 145, 115];       // gridline y for ticks[0..3]
+    const lo = ticks[0], hi = ticks[3];
+    const yOf = v => hi === lo ? gy[0] : gy[0] + (v - lo) / (hi - lo) * (gy[3] - gy[0]);
+
+    let svg = `<svg class="chart" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">`;
+    gy.forEach((y, i) => {
+      svg += `<line x1="${x0}" x2="${x1}" y1="${y}" y2="${y}" stroke="#373737" stroke-width="1"/>`;
+      svg += `<text x="${labX + labW / 2}" y="${y + 4}" fill="#aaa" font-size="${fs}" text-anchor="middle" font-family="Roboto, sans-serif">${labels[i]}</text>`;
+    });
+    const pts = data.map((v, i) => `${(x0 + (x1 - x0) * i / (data.length - 1)).toFixed(2)},${yOf(v).toFixed(2)}`).join(" ");
+    svg += `<polyline points="${pts}" fill="none" stroke="#00a7cf" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>`;
+    const [a, b] = range();
+    svg += `<text x="${x0}" y="228" fill="#aaa" font-size="${fs}" font-family="Roboto, sans-serif">${a}</text>`;
+    svg += `<text x="${x1}" y="228" fill="#aaa" font-size="${fs}" text-anchor="end" font-family="Roboto, sans-serif">${b}</text>`;
+    svg += `</svg>`;
+
+    el.innerHTML = svg +
+      `<div class="l">${LABELS[key]}</div>` +
+      `<div class="v" data-edit="${key}">${shown}${arrowHtml}</div>` + pctHtml;
+  }
+
+  // ---------- other renders ----------
+  function renderStatus() {
+    const st = S.status;
+    const standalone = window.navigator.standalone === true || matchMedia("(display-mode: standalone)").matches;
+    document.body.classList.toggle("standalone", st.show === "hide" || (st.show === "auto" && standalone));
+    const now = new Date();
+    const time = st.time || `${now.getHours() % 12 || 12}:${String(now.getMinutes()).padStart(2, "0")}`;
+    const silent = st.silent ? `<svg width="17" height="17" viewBox="0 0 24 24" fill="#fff"><path d="M12 22a2.4 2.4 0 0 0 2.4-2.2H9.6A2.4 2.4 0 0 0 12 22Zm7-5.2-1.4-1.6V10.6a5.6 5.6 0 0 0-4.2-5.5V4.4a1.4 1.4 0 0 0-2.8 0v.7a5.7 5.7 0 0 0-2.6 1.4l11 11.1V16.8ZM3.3 3.1 2 4.4l4.5 4.5a5.9 5.9 0 0 0-.1 1.7v4.6L5 16.8v1.4h11.9l2.7 2.7 1.3-1.3Z"/></svg>` : "";
+    const sig = Number(st.signal);
+    let bars = "";
+    [4.5, 7, 9.5, 12].forEach((hgt, i) => {
+      const x = i * 5.2;
+      bars += i < sig
+        ? `<rect x="${x}" y="${12 - hgt}" width="3.4" height="${hgt}" rx="1" fill="#fff"/>`
+        : `<rect x="${x}" y="8.6" width="3.4" height="3.4" rx="1.7" fill="#fff" opacity=".9"/>`;
+    });
+    const net = String(st.network || "");
+    const m = net.match(/^(\S+)\s+(\S{2})$/);
+    const netHtml = m ? `${esc(m[1])}<small><span>${esc(m[2][0])}</span><span>${esc(m[2][1])}</span></small>` : esc(net);
+    const bat = Math.max(0, Math.min(100, Number(st.battery) || 0));
+    $("status").innerHTML =
+      `<div class="time" data-edit="status">${esc(time)}${silent}</div>` +
+      `<div class="right" data-edit="status"><svg width="20" height="12" viewBox="0 0 20 12">${bars}</svg>` +
+      `<span class="net">${netHtml}</span>` +
+      `<span class="battery"><span class="body${bat < 100 ? " low" : ""}"><span class="fill" style="width:${bat}%"></span><span>${bat}</span></span><span class="cap"></span></span></div>`;
+  }
+
+  function topVideos() {
+    return S.topContent.filter(v => v.title || v.views).slice().sort((a, b) => (Number(b.views) || 0) - (Number(a.views) || 0));
+  }
+  const vidRow = v => `<div class="vid" data-edit="top"><div class="thumb" style="${v.thumb ? `background-image:url('${v.thumb}')` : ""}"></div><div class="t">${esc(v.title || "Untitled")}</div><div class="n">${fmt(v.views)}</div></div>`;
+
+  function renderTop() {
+    const vids = topVideos();
+    $("topBody").innerHTML = vids.length
+      ? `<div class="top-list">${vids.slice(0, 3).map(vidRow).join("")}</div>`
+      : `<div class="empty" data-edit="top"><svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="1.5"><circle cx="12" cy="12" r="10.5"/><path d="M12 10.5v6.5" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="7.3" r="1.1" fill="#aaa" stroke="none"/></svg><span>Not enough data to show this report</span></div>`;
+  }
+
+  function renderRealtime() {
+    const v = Number(S.realtime.value) || 0;
+    $("rtVal").textContent = fmt(v);
+    const sp = $("rtSpark");
+    if (v <= 0) {
+      sp.setAttribute("viewBox", "0 0 144 34");
+      sp.innerHTML = `<line x1="0" x2="144" y1="30" y2="30" stroke="#4d4d4d" stroke-width="1"/>`;
+      $("rtBody").innerHTML = `<div class="rt-empty">Nothing to show for these dates</div>`;
+      return;
+    }
+    // 48 hourly bars summing to v, shaped by the views trend
+    const r = rng(S.seed * 1000 + SEEDS.rt);
+    const p = Number(S.metrics.views.pct) || 0;
+    const raw = Array.from({ length: 48 }, (_, i) => Math.max(0.02, (1 + (p > 0 ? 0.6 : p < 0 ? -0.4 : 0) * (i / 47)) * (0.55 + r() * 0.9) * (1 + 0.25 * Math.sin(i / 24 * Math.PI * 2))));
+    const sum = raw.reduce((a, b) => a + b, 0);
+    const vals = raw.map(x => x / sum * v);
+    const mx = Math.max(...vals);
+    const bw = 144 / 48;
+    sp.setAttribute("viewBox", "0 0 144 34");
+    sp.innerHTML = vals.map((x, i) => { const hh = Math.max(1, x / mx * 30); return `<rect x="${(i * bw + 0.4).toFixed(2)}" y="${(30 - hh).toFixed(2)}" width="${(bw - 0.8).toFixed(2)}" height="${hh.toFixed(2)}" fill="#00a7cf"/>`; }).join("") +
+      `<line x1="0" x2="144" y1="30.5" y2="30.5" stroke="#4d4d4d" stroke-width="1"/>`;
+    const vids = topVideos();
+    $("rtBody").innerHTML = vids.length
+      ? `<div class="top-list">${vids.slice(0, 3).map(x => vidRow({ ...x, views: Math.max(0, Math.round(v * (Number(x.views) || 0) / Math.max(1, vids.reduce((a, b) => a + (Number(b.views) || 0), 0)))) })).join("")}</div>`
+      : `<div class="rt-live">Updating live</div>`;
+  }
+
+  const NAV = [
+    ["dashboard", "Dashboard",
+      `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6"><rect x="3" y="3" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="3" width="7.5" height="5.5" rx="2"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="11.5" width="7.5" height="9.5" rx="2"/></svg>`,
+      `<svg viewBox="0 0 24 24" fill="#fff"><rect x="3" y="3" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="3" width="7.5" height="5.5" rx="2"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="11.5" width="7.5" height="9.5" rx="2"/></svg>`],
+    ["content", "Content",
+      `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"><rect x="6.5" y="3" width="15" height="14" rx="1.5"/><path d="M3 7v12.5A1.5 1.5 0 0 0 4.5 21H17"/><path d="M12 7.2v5.6l4.4-2.8Z"/></svg>`],
+    ["analytics", "Analytics",
+      `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="1.5"/><path d="M8 16.5v-4M12 16.5v-9M16 16.5v-6" stroke-linecap="round"/></svg>`,
+      `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1.5" fill="#fff"/><path d="M8 16.5v-4M12 16.5v-9M16 16.5v-6" stroke="#0f0f0f" stroke-width="2" stroke-linecap="round"/></svg>`],
+    ["community", "Community",
+      `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="9" r="3.2"/><path d="M5.8 20a6.2 6.2 0 0 1 12.4 0"/><circle cx="5.5" cy="7.5" r="2.3"/><circle cx="18.5" cy="7.5" r="2.3"/><path d="M1.5 15.5a4.4 4.4 0 0 1 4.6-3.6M22.5 15.5a4.4 4.4 0 0 0-4.6-3.6"/></svg>`],
+    ["earn", "Earn",
+      `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M15 8.6c-.5-.9-1.6-1.5-3-1.5-1.7 0-3 .9-3 2.3 0 3.2 6.2 1.7 6.2 4.9 0 1.4-1.4 2.4-3.2 2.4-1.5 0-2.7-.7-3.2-1.7M12 5.3v1.8M12 16.7v2"/></svg>`],
+  ];
+  function renderNav() {
+    $("nav").innerHTML = NAV.map(([id, label, off, on]) =>
+      `<a data-nav="${id}">${S.screen === id && on ? on : off}<span>${label}</span></a>`).join("");
+  }
+
+  let currentDot = 0;
+  function renderAll() {
+    renderStatus();
+    ["hdrAv", "dashAv"].forEach(id => $(id).src = S.avatar || "assets/avatar.jpg");
+    $("dashName").textContent = S.name;
+    $("dashTotal").textContent = fmtSubs(Number(S.totalSubs) || 0);
+    $("tileViews").textContent = fmt(S.metrics.views.value);
+    $("tileWatch").textContent = fmt(S.metrics.watch.value, 1);
+    document.querySelectorAll(".screen").forEach(s => s.classList.toggle("active", s.id === "scr-" + S.screen));
+    renderNav();
+    if (S.screen === "analytics") {
+      document.querySelectorAll(".mcard").forEach(renderCard);
+      renderTop();
+      renderRealtime();
+    }
+  }
+
+  // ---------- carousel dots ----------
+  const car = $("carousel");
+  car.addEventListener("scroll", () => {
+    const max = car.scrollWidth - car.clientWidth;
+    const idx = max <= 0 ? 0 : Math.round(car.scrollLeft / max * 2);
+    if (idx !== currentDot) {
+      currentDot = idx;
+      [...$("dots").children].forEach((d, i) => d.classList.toggle("on", i === idx));
+    }
+  }, { passive: true });
+
+  // ---------- navigation ----------
+  $("nav").addEventListener("click", e => {
+    const a = e.target.closest("[data-nav]"); if (!a) return;
+    const id = a.dataset.nav;
+    if (id !== "dashboard" && id !== "analytics") return;
+    S.screen = id; save(); renderAll();
+  });
+  $("tabs").addEventListener("click", e => {
+    const t = e.target.closest(".tab"); if (!t) return;
+    document.querySelectorAll(".tab").forEach(x => x.classList.toggle("active", x === t));
+    const ov = t.dataset.tab === "overview";
+    $("overview").style.display = ov ? "" : "none";
+    $("otherTab").style.display = ov ? "none" : "";
+  });
+
+  // ---------- editor sheet ----------
+  const sheet = $("sheet"), scrim = $("scrim");
+  function openSheet(html, bind) {
+    sheet.innerHTML = `<div class="grab"></div>` + html;
+    scrim.classList.add("open"); sheet.classList.add("open");
+    bind && bind();
+    const first = sheet.querySelector("input");
+    if (first && matchMedia("(pointer:fine)").matches) first.focus();
+  }
+  function closeSheet() { sheet.classList.remove("open"); scrim.classList.remove("open"); }
+  scrim.addEventListener("click", closeSheet);
+
+  const field = (label, id, value, type = "text", extra = "") =>
+    `<div class="field"><label for="${id}">${label}</label><input id="${id}" type="${type}" value="${esc(value ?? "")}" ${extra}></div>`;
+  const select = (label, id, value, opts) =>
+    `<div class="field"><label for="${id}">${label}</label><select id="${id}">${opts.map(([v, t]) => `<option value="${v}" ${String(v) === String(value) ? "selected" : ""}>${t}</option>`).join("")}</select></div>`;
+  const val = id => sheet.querySelector("#" + id)?.value;
+  const num = id => { const v = val(id); return v === "" || v == null ? 0 : Number(String(v).replace(/[,\s]/g, "")) || 0; };
+  const pctVal = id => { const v = (val(id) ?? "").trim().replace("%", ""); return v === "" ? "" : Number(v); };
+
+  const SHAPES = [["auto", "Auto (from % change)"], ["trend", "Steady trend"], ["spike", "Viral spike"], ["flat", "Flat / random"]];
+
+  function metricFields(key) {
+    const m = S.metrics[key];
+    return `<h5>${LABELS[key]}</h5>` +
+      `<div class="row2">${field(key === "watch" ? "Hours (last 28 days)" : key === "subs" ? "Gained (last 28 days)" : "Views (last 28 days)", "v_" + key, m.value, "text", 'inputmode="decimal"')}` +
+      `${field("% vs previous 28 days", "p_" + key, m.pct, "text", 'inputmode="decimal" placeholder="blank = hide"')}</div>` +
+      select("Chart shape", "s_" + key, m.shape, SHAPES);
+  }
+  function readMetric(key) {
+    const m = S.metrics[key];
+    m.value = num("v_" + key);
+    m.pct = pctVal("p_" + key);
+    m.shape = val("s_" + key);
+  }
+  const buttons = (extra = "") => `<div class="btns">${extra}<button class="btn" id="saveBtn">Save</button></div>`;
+  function onSave(fn) { sheet.querySelector("#saveBtn").onclick = () => { fn(); save(); closeSheet(); renderAll(); }; }
+
+  function editMetric(key) {
+    openSheet(`<h4>Edit ${LABELS[key]}</h4>` + metricFields(key) +
+      buttons(`<button class="btn ghost" id="regen">New random chart</button>`), () => {
+      sheet.querySelector("#regen").onclick = () => { readMetric(key); S.seed = Math.floor(Math.random() * 1e6); save(); renderAll(); };
+      onSave(() => readMetric(key));
+    });
+  }
+  function editChannel() {
+    openSheet(`<h4>Channel</h4>` + field("Channel name", "f_name", S.name) +
+      field("Total subscribers", "f_total", S.totalSubs, "text", 'inputmode="numeric"') + buttons(), () =>
+      onSave(() => { S.name = val("f_name"); S.totalSubs = num("f_total"); }));
+  }
+  function editRealtime() {
+    openSheet(`<h4>Realtime</h4>` + field("Views · 48 hours", "f_rt", S.realtime.value, "text", 'inputmode="numeric"') + buttons(), () =>
+      onSave(() => { S.realtime.value = num("f_rt"); }));
+  }
+  function editStatus() {
+    const st = S.status;
+    openSheet(`<h4>Status bar</h4>` +
+      `<div class="row2">${field("Time (blank = live)", "f_time", st.time, "text", 'placeholder="4:01"')}${field("Battery %", "f_bat", st.battery, "number", 'min="0" max="100"')}</div>` +
+      `<div class="row2">${select("Signal bars", "f_sig", st.signal, [[0, "0"], [1, "1"], [2, "2"], [3, "3"], [4, "4"]])}${field("Network", "f_net", st.network)}</div>` +
+      `<div class="row2">${select("Silent icon", "f_sil", st.silent ? 1 : 0, [[1, "On"], [0, "Off"]])}${select("Fake status bar", "f_show", st.show, [["auto", "Auto"], ["show", "Always show"], ["hide", "Hide"]])}</div>` +
+      buttons(), () => onSave(() => {
+        st.time = val("f_time").trim(); st.battery = num("f_bat"); st.signal = Number(val("f_sig"));
+        st.network = val("f_net"); st.silent = val("f_sil") === "1"; st.show = val("f_show");
+      }));
+  }
+
+  function downscale(file, maxW) {
+    return new Promise(res => {
+      const img = new Image();
+      img.onload = () => {
+        const s = Math.min(1, maxW / img.width);
+        const c = document.createElement("canvas");
+        c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
+        c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+        res(c.toDataURL("image/jpeg", 0.85));
+        URL.revokeObjectURL(img.src);
+      };
+      img.src = URL.createObjectURL(file);
+    });
+  }
+  function pickImage(maxW) {
+    return new Promise(res => {
+      const i = document.createElement("input"); i.type = "file"; i.accept = "image/*";
+      i.onchange = async () => res(i.files[0] ? await downscale(i.files[0], maxW) : null);
+      i.click();
+    });
+  }
+  async function editAvatar() {
+    const d = await pickImage(300);
+    if (d) { S.avatar = d; save(); renderAll(); }
+  }
+
+  function editTop() {
+    const list = S.topContent.length ? S.topContent : [];
+    const rows = list.map((v, i) => `<div class="vid-edit" data-i="${i}">
+      ${field("Title", "t_" + i, v.title)}
+      <div class="row2">${field("Views", "n_" + i, v.views, "text", 'inputmode="numeric"')}
+      <div class="field"><label>Thumbnail</label><div class="btns" style="margin:0"><button class="btn ghost" data-thumb="${i}">${v.thumb ? "Change" : "Upload"}</button><button class="btn danger" data-del="${i}">✕</button></div></div></div>
+    </div>`).join("");
+    openSheet(`<h4>Top content</h4>${rows || `<div class="field"><label>No videos yet — the card shows “Not enough data”.</label></div>`}` +
+      buttons(`<button class="btn ghost" id="addVid">+ Add video</button>`), () => {
+      const readAll = () => S.topContent.forEach((v, i) => { v.title = val("t_" + i) ?? v.title; v.views = num("n_" + i); });
+      sheet.querySelector("#addVid").onclick = () => { readAll(); S.topContent.push({ title: "", views: 0, thumb: "" }); editTop(); };
+      sheet.querySelectorAll("[data-del]").forEach(b => b.onclick = () => { readAll(); S.topContent.splice(+b.dataset.del, 1); save(); editTop(); renderAll(); });
+      sheet.querySelectorAll("[data-thumb]").forEach(b => b.onclick = async () => { readAll(); const d = await pickImage(320); if (d) { S.topContent[+b.dataset.thumb].thumb = d; save(); editTop(); renderAll(); } });
+      onSave(readAll);
+    });
+  }
+
+  function editAll() {
+    openSheet(`<h4>All settings</h4>` +
+      `<h5>Channel</h5>` + field("Channel name", "f_name", S.name) +
+      `<div class="row2">${field("Total subscribers", "f_total", S.totalSubs, "text", 'inputmode="numeric"')}${field("Realtime views (48h)", "f_rt", S.realtime.value, "text", 'inputmode="numeric"')}</div>` +
+      metricFields("views") + metricFields("watch") + metricFields("subs") +
+      `<h5>Display</h5><div class="row2">${field("Chart end date (blank = yesterday)", "f_end", S.endDate, "date")}${select("Number format", "f_fmt", S.format, [["auto", "Auto (12.3K)"], ["full", "Full (12,345)"]])}</div>` +
+      `<div class="btns"><button class="btn ghost" id="avBtn">Change avatar</button><button class="btn ghost" id="topBtn">Top content</button><button class="btn ghost" id="stBtn">Status bar</button></div>` +
+      buttons(`<button class="btn danger" id="resetBtn">Reset</button><button class="btn ghost" id="regen">New random charts</button>`), () => {
+      const readAll = () => {
+        S.name = val("f_name"); S.totalSubs = num("f_total"); S.realtime.value = num("f_rt");
+        ["views", "watch", "subs"].forEach(readMetric);
+        S.endDate = val("f_end"); S.format = val("f_fmt");
+      };
+      sheet.querySelector("#avBtn").onclick = () => { readAll(); save(); renderAll(); editAvatar(); };
+      sheet.querySelector("#topBtn").onclick = () => { readAll(); save(); renderAll(); editTop(); };
+      sheet.querySelector("#stBtn").onclick = () => { readAll(); save(); renderAll(); editStatus(); };
+      sheet.querySelector("#regen").onclick = () => { readAll(); S.seed = Math.floor(Math.random() * 1e6); save(); renderAll(); };
+      sheet.querySelector("#resetBtn").onclick = () => { if (confirm("Reset everything to the defaults?")) { S = clone(DEFAULTS); save(); closeSheet(); renderAll(); } };
+      onSave(readAll);
+    });
+  }
+
+  document.addEventListener("click", e => {
+    if (sheet.contains(e.target)) return;
+    const el = e.target.closest("[data-edit]"); if (!el) return;
+    const k = el.dataset.edit;
+    if (k in S.metrics) editMetric(k);
+    else if (k === "channel") editChannel();
+    else if (k === "realtime") editRealtime();
+    else if (k === "status") editStatus();
+    else if (k === "avatar") editAvatar();
+    else if (k === "top") editTop();
+  });
+
+  // triple-tap logo → all settings
+  let taps = [];
+  $("logo").addEventListener("click", () => {
+    const now = Date.now();
+    taps = taps.filter(t => now - t < 600); taps.push(now);
+    if (taps.length >= 3) { taps = []; editAll(); }
+  });
+
+  // first-run hint
+  try {
+    if (!localStorage.getItem(KEY + "-hint")) {
+      $("hint").classList.remove("hide");
+      setTimeout(() => $("hint").classList.add("hide"), 4500);
+      localStorage.setItem(KEY + "-hint", "1");
+    }
+  } catch (e) {}
+
+  window.addEventListener("resize", () => renderAll());
+  setInterval(renderStatus, 15000);
+  if (document.fonts) document.fonts.ready.then(renderAll);
+  renderAll();
+})();
+</script>
+</body>
+</html>
