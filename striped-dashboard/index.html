@@ -340,21 +340,20 @@ function customerDensity(a){
     max:Math.round(total/lo),
   };
 }
-function genData(a){
-  const p=a.brief&&a.brief.profile;
-  const T=TIERS[a.business.tier]||TIERS.low;
-  const today=startOfDay(new Date());
-  const keys=[];
-  for(let i=399;i>=0;i--) keys.push(dayKey(addDays(today,-i)));
+function amountFn(a){
+  const p=a.brief&&a.brief.profile,T=TIERS[a.business.tier]||TIERS.low;
+  return ()=>round2(p?(p.prices?pick(p.prices):rnd(p.ticket[0],p.ticket[1])):rnd(T.ticket[0],T.ticket[1]));
+}
+function genRows(a,keys,scale){
+  const p=a.brief&&a.brief.profile,T=TIERS[a.business.tier]||TIERS.low;
   const spike=p?spikeDays(p,keys):new Set();
-  const amount=()=>round2(p?(p.prices?pick(p.prices):rnd(p.ticket[0],p.ticket[1])):rnd(T.ticket[0],T.ticket[1]));
-  const history=[];
+  const amount=amountFn(a);
   let trend=1;
-  for(const k of keys){
+  return keys.map(k=>{
     const row={d:k,gross:0,count:0,customers:0,refunds:0};
     if(p){
       row.count=Math.round(rnd(p.daily[0],p.daily[1])*(p.random?rnd(0,2):rnd(0.8,1.2))*(spike.has(k)?p.dropMult:1));
-      row.gross=round2(Array.from({length:row.count},amount).reduce((s,x)=>s+x,0));
+      row.gross=round2(Array.from({length:row.count},amount).reduce((t,x)=>t+x,0)*scale);
     }else if(Math.random()>0.05){
       trend=clamp(trend*(1+rnd(-0.012,0.014)),0.55,1.9);
       const weekday=[0.75,0.95,1,1,1.05,1.25,1.2][parseDay(k).getDay()];
@@ -365,13 +364,25 @@ function genData(a){
       row.customers=Math.round(row.count*rnd(0.15,0.5));
       if(Math.random()<0.07) row.refunds=round2(row.gross*rnd(0.02,0.12));
     }
-    history.push(row);
-  }
+    return row;
+  });
+}
+function genData(a){
+  const p=a.brief&&a.brief.profile;
+  const today=startOfDay(new Date());
+  const keys=[];
+  for(let i=399;i>=0;i--) keys.push(dayKey(addDays(today,-i)));
+  const history=genRows(a,keys,1);
+  a.scaleFactor=1;
   if(p&&p.allTimeSales){
     const total=sum(history,'gross');
-    if(total>0) history.forEach(r=>{r.gross=round2(r.gross*p.allTimeSales/total);});
+    if(total>0){
+      a.scaleFactor=p.allTimeSales/total;
+      history.forEach(r=>{r.gross=round2(r.gross*a.scaleFactor);});
+    }
   }
   a.history=history;
+  const amount=amountFn(a);
   a.txns=Array.from({length:40},()=>({
     id:uid(),t:Date.now()-Math.random()*7*DAY,customer:pick(NAMES),
     amount:amount(),kind:Math.random()<0.06?'refund':'payment',
@@ -380,6 +391,17 @@ function genData(a){
   a.goalFiredOn='';
   a.summaryFiredOn='';
   MAPS.delete(a);
+}
+// Adds any days between the last saved day and today, so recent periods are never empty.
+function extendHistory(a){
+  if(!a.history.length){ genData(a); return true; }
+  const today=startOfDay(new Date());
+  const missing=[];
+  for(let d=addDays(parseDay(a.history[a.history.length-1].d),1);d<=today;d=addDays(d,1)) missing.push(dayKey(d));
+  if(!missing.length) return false;
+  a.history.push(...genRows(a,missing,a.scaleFactor||1));
+  MAPS.delete(a);
+  return true;
 }
 function derive(r,a){
   const fees=round2(r.gross*a.fee.pct/100+r.count*a.fee.fixed);
@@ -495,6 +517,9 @@ function hideScrub(el){ el.querySelectorAll('.cur-line,.dot,.tip').forEach(x=>x.
 
 /* ---------- rendering ---------- */
 function renderAll(){
+  let changed=false;
+  S.accounts.forEach(x=>{changed=extendHistory(x)||changed;});
+  if(changed) save();
   const a=A();
   document.body.classList.toggle('light',a.business.theme==='light');
   document.documentElement.style.setProperty('--accent',a.business.accent);
@@ -515,7 +540,7 @@ function renderHome(a){
   const today=startOfDay(new Date()),t=dayTotals(a,today);
   $('#today').innerHTML=a.home.today.map(id=>`<div><div class="tl">${METRICS[id].short}</div><div class="tv" data-edit="metric|${id}|today">${fmtVal(id,METRICS[id].f([t]),a)}</div></div>`).join('');
   const keys=a.home.custom?[...RANGES,'CUSTOM']:RANGES;
-  $('#ranges').innerHTML=keys.map(r=>`<button class="${r===a.home.range?'on':''}" data-act="range" data-v="${r}">${r==='CUSTOM'?'Custom':r}</button>`).join('');
+  $('#ranges').innerHTML=keys.map(r=>`<button class="${r===a.home.range?'on':''}" data-act="range" data-v="${r}">${r==='CUSTOM'?shortRange(a):r}</button>`).join('');
   const win=windowFor(a.home.range,a);
   $('#reports').innerHTML=a.home.layout.map((it,i)=>{
     if(!it.on&&!UI.editing) return '';
@@ -960,6 +985,10 @@ function openEdit(key){
     <button class="btn" type="submit">Save</button>
   </form>`);
 }
+function shortRange(a){
+  const w=windowFor('CUSTOM',a);
+  return `${fmtDay(w.start)}–${fmtDay(w.end)}`;
+}
 function openDates(a){
   const w=windowFor(a.home.range,a);
   openSheet('Custom dates',`<form class="sform" data-form="dates">
@@ -1055,8 +1084,11 @@ document.addEventListener('submit',e=>{
     const st=f.startDate.value,en=f.endDate.value;
     if(!st||!en||st>en) return;
     const a=A();
-    a.home.custom={start:st,end:en};
-    a.home.range='CUSTOM';
+    const preset=['1W','4W','1Y','MTD','QTD','YTD','ALL'].find(k=>{
+      const w=windowFor(k,a);return dayKey(w.start)===st&&dayKey(w.end)===en;
+    });
+    if(preset){ a.home.range=preset; a.home.custom=null; }
+    else { a.home.custom={start:st,end:en}; a.home.range='CUSTOM'; }
     save();closeSheet();renderAll();
     return;
   }
@@ -1090,6 +1122,7 @@ document.addEventListener('pointercancel',endScrub);
 
 /* ---------- start ---------- */
 S=load();
+save();
 renderAll();
 setInterval(summaryTick,30000);
 restartSim();
