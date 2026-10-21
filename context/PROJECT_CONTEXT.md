@@ -74,6 +74,19 @@ Assumes a steady ramp from about 3 sales a week in April to 16 a week now. Tier 
 
 **Open question:** which reading is correct. This matters for the dashboard's numbers.
 
+## Base launch to-do
+
+The user's list for the base launch, in their order:
+
+1. **Make the website:** the Mirrorkit hub that links every dashboard by its off-brand name, each on its own sub-link with its own settings.
+2. **Striped dashboard (Stripe-style), final checks:** check on a real iPhone (notch and home-indicator spacing, settings controls, pull-down sheets, midnight rollover) and confirm GitHub Pages serves the latest build.
+3. **Larp tube studio (YouTube Studio-style), polish:** bring it up to the striped dashboard's standard (1:1 layout from screenshots, off-brand name and logo, today-anchored ranges, triple-tap editing, settings, notifications).
+4. **Cash App-style dashboard, create.**
+5. **Venmo-style dashboard, create.**
+6. **Robinhood-style dashboard, create.**
+
+New dashboards are built 1:1 from reference screenshots the user provides, using off-brand names on the site.
+
 ## Planned work
 
 1. **AI server for the description reader** (task #1). Options and constraints:
