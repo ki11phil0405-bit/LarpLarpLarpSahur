@@ -120,6 +120,7 @@
   .srow input[type=number]{width:96px}
   .srow input[type=checkbox]{width:44px;height:26px;accent-color:var(--accent)}
   .srow input[type=color]{width:52px;height:32px;border:0;background:none;padding:0}
+  .srow textarea{width:100%;background:var(--card2);border:1px solid var(--line);border-radius:8px;padding:8px;font-size:15px;color:var(--text);resize:vertical;font-family:inherit;outline:none}
   .mv{display:flex;align-items:center;gap:6px}
   .btn{border:0;border-radius:10px;background:var(--accent);color:#fff;padding:10px 14px;font-weight:600;font-size:15px}
   .btn.ghost{background:var(--card2);color:var(--text)}
@@ -246,6 +247,7 @@ const spanLabel=b=>b.s.getTime()===b.e.getTime()?fmtDay(b.s):`${fmtDay(b.s)} –
 function A(){
   let a=S.accounts.find(x=>x.id===S.activeId);
   if(!a){a=S.accounts[0];S.activeId=a.id;}
+  a.brief ||= {text:'',profile:null};
   return a;
 }
 function DEFAULT_RULES(tier){
@@ -274,19 +276,67 @@ function newAccount(name,tier){
   genData(a);
   return a;
 }
+function parseBrief(text){
+  const t=text.toLowerCase().replace(/,/g,'');
+  const unit={day:1,week:7,month:30};
+  const p={ticket:[40,80],prices:null,daily:[4,10],random:/random/.test(t),dropsPerMonth:0,dropMult:2};
+  const prices=[...new Set([...t.matchAll(/\$\s?(\d+(?:\.\d+)?)/g)].map(m=>+m[1]))].sort((x,y)=>x-y);
+  const min=t.match(/min(?:imum)?\s*(?:price)?\s*(?:is|of|:)?\s*\$?\s?(\d+(?:\.\d+)?)/);
+  if(prices.length>1) p.prices=prices;
+  else if(prices.length||min){ const lo=min?+min[1]:prices[0]; p.ticket=[lo,Math.round(lo*1.6)]; }
+  let m=t.match(/(\d+)\s*(?:-|to|–)\s*(\d+)[^.\n]{0,20}?\b(?:a|per|each|every)\s*(day|week|month)\b/);
+  if(m){ const u=unit[m[3]]; p.daily=[+m[1]/u,+m[2]/u]; }
+  else if(m=t.match(/(\d+)\s*(?:sales?|sold|orders?|payments?)[^.\n]{0,12}?\b(?:a|per|each|every)\s*(day|week|month)\b/)){
+    const r=+m[1]/unit[m[2]]; p.daily=[r*0.8,r*1.2];
+  }
+  if(m=t.match(/(\d+)\s*(?:x|drops?|launch(?:es)?|spikes?|times?)\s*(?:a|per|each|every)\s*month/)) p.dropsPerMonth=+m[1];
+  else if(/twice\s*(?:a|per|each|every)\s*month/.test(t)) p.dropsPerMonth=2;
+  p.dropMult=/super|massive|huge|insane|crazy/.test(t)?4:/hotcake|sell out|sells out|sold out/.test(t)?3:/successful|popular|hit/.test(t)?2.5:2;
+  return p;
+}
+function spikeDays(p,keys){
+  const set=new Set();
+  if(!p.dropsPerMonth) return set;
+  const months={};
+  keys.forEach(k=>{const m=k.slice(0,7);(months[m]=months[m]||[]).push(k);});
+  Object.values(months).forEach(days=>{
+    for(let n=0;n<p.dropsPerMonth;n++){
+      const i=Math.floor(Math.random()*days.length);
+      set.add(days[i]);
+      if(i+1<days.length) set.add(days[i+1]);
+    }
+  });
+  return set;
+}
+function summarize(p){
+  const r1=v=>Math.round(v*10)/10;
+  const price=p.prices?p.prices.map(v=>'$'+v).join(' / '):`$${Math.round(p.ticket[0])}–$${Math.round(p.ticket[1])}`;
+  const rate=`${r1(p.daily[0]*7)}–${r1(p.daily[1]*7)} sales a week`;
+  const drops=p.dropsPerMonth?`${p.dropsPerMonth} drop${p.dropsPerMonth>1?'s':''} a month, ${p.dropMult}x sales for 2 days`:'no drops';
+  return `Price ${price} · ${rate} · ${drops}${p.random?' · random':''}`;
+}
 function genData(a){
+  const p=a.brief&&a.brief.profile;
   const T=TIERS[a.business.tier]||TIERS.low;
   const today=startOfDay(new Date());
+  const keys=[];
+  for(let i=399;i>=0;i--) keys.push(dayKey(addDays(today,-i)));
+  const spike=p?spikeDays(p,keys):new Set();
+  const amount=()=>round2(p?(p.prices?pick(p.prices):rnd(p.ticket[0],p.ticket[1])):rnd(T.ticket[0],T.ticket[1]));
   const history=[];
   let trend=1;
-  for(let i=399;i>=0;i--){
-    const d=addDays(today,-i);
-    trend=clamp(trend*(1+rnd(-0.012,0.014)),0.55,1.9);
-    const weekday=[0.75,0.95,1,1,1.05,1.25,1.2][d.getDay()];
-    const row={d:dayKey(d),gross:0,count:0,customers:0,refunds:0};
-    if(Math.random()>0.05){
+  for(const k of keys){
+    const row={d:k,gross:0,count:0,customers:0,refunds:0};
+    if(p){
+      row.count=Math.round(rnd(p.daily[0],p.daily[1])*(p.random?rnd(0,2):rnd(0.8,1.2))*(spike.has(k)?p.dropMult:1));
+      row.gross=round2(Array.from({length:row.count},amount).reduce((s,x)=>s+x,0));
+    }else if(Math.random()>0.05){
+      trend=clamp(trend*(1+rnd(-0.012,0.014)),0.55,1.9);
+      const weekday=[0.75,0.95,1,1,1.05,1.25,1.2][parseDay(k).getDay()];
       row.count=Math.max(1,Math.round(rnd(T.count[0],T.count[1])*trend*weekday*rnd(0.8,1.2)));
       row.gross=round2(row.count*rnd(T.ticket[0],T.ticket[1]));
+    }
+    if(row.count){
       row.customers=Math.round(row.count*rnd(0.15,0.5));
       if(Math.random()<0.07) row.refunds=round2(row.gross*rnd(0.02,0.12));
     }
@@ -295,7 +345,7 @@ function genData(a){
   a.history=history;
   a.txns=Array.from({length:40},()=>({
     id:uid(),t:Date.now()-Math.random()*7*DAY,customer:pick(NAMES),
-    amount:round2(rnd(T.ticket[0],T.ticket[1])),kind:Math.random()<0.06?'refund':'payment',
+    amount:amount(),kind:Math.random()<0.06?'refund':'payment',
   })).sort((x,y)=>y.t-x.t);
   a.payouts=[];
   a.goalFiredOn='';
@@ -543,6 +593,16 @@ function permText(){
   if(!('Notification' in window)) return 'Not supported here. On iPhone: Share → Add to Home Screen.';
   return {granted:'Allowed on this device',default:'Not allowed yet. Tap Allow notifications.',denied:'Blocked. Re-enable in browser settings.'}[Notification.permission]||'';
 }
+function briefSection(a){
+  const br=a.brief||{text:'',profile:null};
+  return `<div class="grp">Describe your business</div>
+  <div class="grp-box">
+    <div class="srow col"><span>In plain English</span><textarea rows="3" data-path="brief.text" placeholder="e.g. clothing brand, min price $60, drops 2x a month, super successful">${esc(br.text)}</textarea></div>
+    ${br.profile?`<div class="srow col"><span>What it reads as</span><small>${esc(summarize(br.profile))}</small></div>`:''}
+  </div>
+  <div class="btnrow"><button class="btn" data-act="readBrief">Read it and randomize</button><button class="btn ghost" data-act="clearBrief">Use tier instead</button></div>
+  <div class="hint">Understands prices ($60, or $799 $999 $1200), sales a week or day (12-18 a week), drops (2x a month) and "random". Other words are ignored.</div>`;
+}
 function settingsHTML(){
   const a=A(),b=a.business,n=a.notifications;
   const row=(label,ctrl,note='')=>`<div class="srow"><span>${label}${note?`<small>${note}</small>`:''}</span>${ctrl}</div>`;
@@ -573,6 +633,7 @@ function settingsHTML(){
   <div class="btnrow"><button class="btn" data-act="randomize">Randomize ${TIERS[b.tier].label} numbers</button></div>
   <div class="hint">Rebuilds 400 days of payments for this tier and clears payouts. Widgets, layout and notification rules are kept.</div>
 
+  ${briefSection(a)}
   <div class="grp">Home</div>
   <div class="grp-box">
     ${row('Default range',sel('home.range',RANGES.map(r=>[r,r]),a.home.range))}
@@ -711,6 +772,16 @@ function act(name,el){
       if(!confirm('Erase all accounts and start over?')) break;
       S=fresh();save();UI.tab='home';closeSheet();renderAll();break;
     }
+    case 'readBrief': {
+      const box=$('#sheetBody textarea[data-path="brief.text"]');
+      a.brief.text=(box?box.value:a.brief.text).trim();
+      if(!a.brief.text){toast('Describe the business first');break;}
+      a.brief.profile=parseBrief(a.brief.text);
+      genData(a);save();renderAll();refreshSettings();
+      toast('Read your description',summarize(a.brief.profile));
+      break;
+    }
+    case 'clearBrief': a.brief.profile=null;genData(a);save();renderAll();refreshSettings();toast('Using tier numbers');break;
     case 'closeSheet': closeSheet();break;
   }
 }
