@@ -1,23 +1,19 @@
-# LarpLarpLarpSahur
+# Mirrorkit
 
-A YouTube Studio–style analytics simulator (mobile first). It is kept as a backup in `backup/youtube-studio/index.html` and is no longer linked from the main page.
+A set of mobile-first dashboards, all linked from one site. Open `index.html` on your phone to start.
 
-- **Tap any number** (views, watch time, subscribers, realtime, total subs, status-bar time) to edit it and its % change. The chart is regenerated to match.
-- **Triple-tap the "Studio" logo** for every setting: chart shape, end date, number format, avatar, top-content videos, status bar.
-- **New random chart** reshuffles the line while keeping your totals.
-- Edits are saved in the browser.
+## Dashboards
 
-For a clean full-screen view on iPhone: Safari → Share → **Add to Home Screen**, then open it from the home screen. The fake status bar hides itself there and the real one shows.
+- **Striped dashboard** (`striped-dashboard/`): the main dashboard. Tiered random numbers, reports with range switching, finger-drag chart readouts, an editable home screen, tap-to-add widgets, account settings and native notifications.
+- **Larp tube studio** (`backup/larp-tube-studio/`): an older analytics mock kept as a backup. It isn't linked from the main page.
 
-## Margin Drive dashboard (`dashboard/`)
+## Using the striped dashboard
 
-The main page (`index.html`) opens this Stripe-style dashboard, which lives in `dashboard/`. The original Studio simulator is kept as a backup in `backup/youtube-studio/`.
-
-- **Tiers**: Low, Medium, High, Income. Account settings → **Randomize** rebuilds 400 days of payments for that tier.
-- **Reports**: 1W / 4W / 1Y / MTD / QTD / YTD / ALL ranges with % change. **Drag your finger** on any chart to read the value and date (hover with a mouse).
+- **Tiers**: Low, Medium, High, Income. Settings → **Randomize** rebuilds 400 days of payments for that tier.
+- **Reports**: 1W / 4W / 1Y / MTD / QTD / YTD / ALL ranges with % change. Drag a finger on any chart to read the value and date (hover with a mouse).
 - **Editable home**: Edit to reorder, hide or show reports. Summary tiles and the default range are set in settings.
 - **Custom widgets**: add a number that adds its amount on each tap. Chart widgets plot every tap.
-- **Account and settings** (the store icon, top left): accounts, business, currency, theme and accent, chart style, number format, fees, widgets, notifications and backup export/import.
-- **Notifications**: native pop-ups via the Notification API. Rules for payment threshold, daily goal, refunds and a daily summary, each with editable title and message. Optional simulated sales while the app is open.
+- **Settings** (store icon, top left): accounts, business, currency, theme and accent, chart style, number format, fees, widgets, notifications and backup export/import.
+- **Notifications**: native pop-ups for payments over a threshold, a daily goal, refunds and a daily summary. Each rule has an editable title and message. Optional simulated sales run while the app is open.
 
 Native alerts only fire while the app is open. Background alerts need a push server. On iPhone, add the app to the Home Screen first (Share → Add to Home Screen), then allow notifications.
